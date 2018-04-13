@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'cdn.youga.pldroid'
+apply plugin: 'cdn.youga.pldroid'
 
 android {
     compileSdkVersion 27
@@ -33,5 +33,6 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.0.2'
     implementation 'com.journeyapps:zxing-android-embedded:3.0.2@aar'
     implementation 'com.google.zxing:core:3.2.0'
+    implementation 'com.newrelic.agent.android:android-agent:5.18.0'
     compile 'com.orhanobut:logger:2.1.1'
 }
