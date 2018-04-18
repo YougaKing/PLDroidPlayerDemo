@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'cdn.youga.pldroid'
+apply plugin: 'cdn.youga.pldroid'
 
 android {
     compileSdkVersion 27
@@ -33,16 +33,16 @@ android {
 //                project.logger.error "outputs =$file.absolutePath"
 //            }
 //        }
-        if (dexTask) {
-            project.logger.error "======dexTask======"
-            dexTask.inputs.files.files.each { file ->
-                project.logger.error "inputs =$file.absolutePath"
-            }
-
-            dexTask.outputs.files.files.each { file ->
-                project.logger.error "outputs =$file.absolutePath"
-            }
-        }
+//        if (dexTask) {
+//            project.logger.error "======dexTask======"
+//            dexTask.inputs.files.files.each { file ->
+//                project.logger.error "inputs =$file.absolutePath"
+//            }
+//
+//            dexTask.outputs.files.files.each { file ->
+//                project.logger.error "outputs =$file.absolutePath"
+//            }
+//        }
     }
 }
 
@@ -50,6 +50,6 @@ dependencies {
     implementation files('libs/pldroid-player-2.1.1.jar')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-//    implementation 'com.newrelic.agent.android:android-agent:5.18.0'
+    implementation 'com.newrelic.agent.android:android-agent:5.18.0'
     implementation 'com.orhanobut:logger:2.1.1'
 }

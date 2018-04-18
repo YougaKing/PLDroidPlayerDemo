@@ -16,35 +16,26 @@ class JarZipUtil {
      * @param destDirPath jar包解压后的保存路径
      * @return 返回该jar包中包含的所有class的完整类名类名集合，其中一条数据如：com.aitski.hotpatch.Xxxx.class
      */
-    static List unzipJar(String jarPath, String destDirPath) {
-
-        List list = new ArrayList()
-        if (jarPath.endsWith('.jar')) {
-
-            JarFile jarFile = new JarFile(jarPath)
-            Enumeration<JarEntry> jarEntrys = jarFile.entries()
-            while (jarEntrys.hasMoreElements()) {
-                JarEntry jarEntry = jarEntrys.nextElement()
-                if (jarEntry.directory) {
-                    continue
-                }
-                String entryName = jarEntry.getName()
-                if (entryName.endsWith('.class')) {
-                    String className = entryName.replace('\\', '.').replace('/', '.')
-                    list.add(className)
-                }
-                String outFileName = destDirPath + "/" + entryName
-                File outFile = new File(outFileName)
-                outFile.getParentFile().mkdirs()
-                InputStream inputStream = jarFile.getInputStream(jarEntry)
-                FileOutputStream fileOutputStream = new FileOutputStream(outFile)
-                fileOutputStream << inputStream
-                fileOutputStream.close()
-                inputStream.close()
+    static void unzipJar(String jarPath, String destDirPath) {
+        if (!jarPath.endsWith('.jar')) return
+        JarFile jarFile = new JarFile(jarPath)
+        Enumeration<JarEntry> jarEntrys = jarFile.entries()
+        while (jarEntrys.hasMoreElements()) {
+            JarEntry jarEntry = jarEntrys.nextElement()
+            if (jarEntry.directory) {
+                continue
             }
-            jarFile.close()
+            String entryName = jarEntry.getName()
+            String outFileName = destDirPath + "/" + entryName
+            File outFile = new File(outFileName)
+            outFile.getParentFile().mkdirs()
+            InputStream inputStream = jarFile.getInputStream(jarEntry)
+            FileOutputStream fileOutputStream = new FileOutputStream(outFile)
+            fileOutputStream << inputStream
+            fileOutputStream.close()
+            inputStream.close()
         }
-        return list
+        jarFile.close()
     }
 
     static void zipJar(File jarFile, String jarZipDir, String destPath) {

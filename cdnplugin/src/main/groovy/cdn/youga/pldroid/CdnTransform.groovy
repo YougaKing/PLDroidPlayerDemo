@@ -47,19 +47,16 @@ class CdnTransform extends Transform {
                 //对 jar包 类型的inputs 进行遍历
                 input.jarInputs.each { JarInput jarInput ->
                     def jarName = jarInput.name
-                    println("jarName:" + jarName + "-->" + jarInput.file.getAbsolutePath())
+                    mProject.logger.error("jarName:" + jarName + "-->" + jarInput.file.getAbsolutePath())
 
                     //这里处理自定义的逻辑
                     PldroidInject.injectJar(jarInput, outputProvider, mProject)
                 }
-
             }
-
-
         } catch (Exception e) {
-            mProject.logger.err e.getMessage()
+            mProject.logger.error e.getMessage()
         }
-        ClassPool.getDefault().clearImportedPackages();
+        ClassPool.getDefault().clearImportedPackages()
         mProject.logger.error("JavassistTransform cast :" + (System.currentTimeMillis() - startTime) / 1000 + " secs")
     }
 }

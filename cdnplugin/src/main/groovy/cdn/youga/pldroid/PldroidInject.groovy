@@ -3,8 +3,10 @@ package cdn.youga.pldroid
 import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
+import com.qiniu.qplayer.mediaEngine.MediaPlayer
 import javassist.ClassPool
 import javassist.CtClass
+import javassist.CtMethod
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
@@ -21,52 +23,55 @@ class PldroidInject {
         ClassPool pool = ClassPool.getDefault()
         pool.appendClassPath(jarPath)
 
-        String projectName = project.rootProject.name
-
-
 
         File jarFile = new File(jarPath)
         // jar包解压后的保存路径
         String jarZipDir = jarFile.getParent() + "/" + jarFile.getName().replace('.jar', '')
         // 解压jar包, 返回jar包中所有class的完整类名的集合（带.class后缀）
-        List classNameList = JarZipUtil.unzipJar(jarPath, jarZipDir)
+        JarZipUtil.unzipJar(jarPath, jarZipDir)
 
         // 删除原来的jar包
-        jarFile.delete()
+//        jarFile.delete()
         // 注入代码
         pool.appendClassPath(jarZipDir)
 
 
-        for (String className : classNameList) {
-            if (className == "com.qiniu.qplayer.mediaEngine.MediaPlayer") {
-                injectClass(className, jarZipDir)
-            }
-        }
+        injectClass(jarZipDir, pool, project)
         // 从新打包jar
-        JarZipUtil.zipJar(jarFile, jarZipDir, jarPath)
+//        JarZipUtil.zipJar(jarFile, jarZipDir, jarPath)
 
         // 删除目录
-        FileUtils.deleteDirectory(new File(jarZipDir))
+//        FileUtils.deleteDirectory(new File(jarZipDir))
     }
 
 
-    private static void injectClass(String className, String jarZipDir, ClassPool pool) {
-        println(jarZipDir)
-        CtClass c = pool.getCtClass(className)
-        if (c.isFrozen()) {
-            c.defrost()
+    private
+    static void injectClass(String jarZipDir, ClassPool pool, Project project) {
+        project.logger.error("jarZipDir:" + jarZipDir)
+        CtClass clazz = pool.get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
+
+        if (clazz.isFrozen()) {
+            clazz.defrost()
         }
-        println(className)
-        for (int i = 0; i < c.declaredMethods.size(); i++) {
-            def method = c.declaredMethods[i]
-            println(method.name)
-            if (method.name.contains("init")) {
-                method.insertAfter("System.out.println(\"测试插入\");")
-                println("插入成功")//测试成功的插入代码
-            }
-        }
-        c.writeFile(jarZipDir)
-        c.detach()
+//
+//        for (int i = 0; i < clazz.declaredMethods.size(); i++) {
+//            def method = clazz.declaredMethods[i]
+//            project.logger.error(method.name)
+//            if (method.parameterTypes != null) {
+//                for (int j = 0; j < method.parameterTypes.size(); j++) {
+//                    project.logger.error(method.parameterTypes[j].name)
+//                }
+//            }
+//        }
+
+        CtClass[] params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
+        CtMethod setDataSource = clazz.getDeclaredMethod("a", params)
+        project.logger.error("setDataSource:" + setDataSource)
+
+        setDataSource.insertAfter("cdn.youga.pldroid.MediaPlayerInjection.setDataSource(\$1, \$2, \$0);")
+
+        clazz.writeFile(jarZipDir)
+        clazz.detach()
     }
 
 

@@ -1,0 +1,8 @@
+apply plugin: 'java-library'
+
+dependencies {
+    compileOnly files('libs/pldroid-player-2.1.1.jar')
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
