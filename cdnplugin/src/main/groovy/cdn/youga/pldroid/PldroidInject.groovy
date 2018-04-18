@@ -68,7 +68,7 @@ class PldroidInject {
         CtMethod setDataSource = clazz.getDeclaredMethod("a", params)
         project.logger.error("setDataSource:" + setDataSource)
 
-        setDataSource.insertAfter("cdn.youga.pldroid.MediaPlayerInjection.setDataSource(\$1, \$2, \$0);")
+        setDataSource.insertAfter("cdn.youga.instrument.MediaPlayerInjection.setDataSource(\$1, \$2, \$0);")
 
         clazz.writeFile(jarZipDir)
         clazz.detach()
