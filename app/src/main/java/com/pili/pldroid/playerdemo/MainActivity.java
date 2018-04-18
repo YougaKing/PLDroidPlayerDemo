@@ -16,8 +16,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.pili.pldroid.player.AVOptions;
 import com.pili.pldroid.playerdemo.utils.GetPathFromUri;
 import com.pili.pldroid.playerdemo.utils.PermissionChecker;
@@ -111,12 +109,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickScanQrcode(View v){
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
-        integrator.setOrientationLocked(true);
-        integrator.setCameraId(0);
-        integrator.setBeepEnabled(true);
-        integrator.initiateScan();
+
     }
 
     public void onClickPlay(View v) {
@@ -189,15 +182,6 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "Select file: " + selectedFilepath);
             if (selectedFilepath != null && !"".equals(selectedFilepath)) {
                 mEditText.setText(selectedFilepath, TextView.BufferType.EDITABLE);
-            }
-        } else if (requestCode ==  IntentIntegrator.REQUEST_CODE) {
-            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if(result != null) {
-                if(result.getContents() == null) {
-                    Toast.makeText(this, "扫码取消！", Toast.LENGTH_SHORT).show();
-                } else {
-                    mEditText.setText(result.getContents());
-                }
             }
         }
     }
