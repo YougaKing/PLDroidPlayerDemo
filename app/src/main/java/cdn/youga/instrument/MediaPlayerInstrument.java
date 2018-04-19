@@ -1,5 +1,9 @@
 package cdn.youga.instrument;
 
+import android.util.Log;
+
+import com.orhanobut.logger.Logger;
+import com.pili.pldroid.player.PlayerState;
 import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 
 import org.json.JSONException;
@@ -11,11 +15,16 @@ import java.util.Map;
 public class MediaPlayerInstrument {
 
 
+    private static PlayerState state = null;
+    private static final String TAG = "MediaPlayerInstrument";
+    private static long mStartPrepare;
+    private static boolean mFirstPlay;
+
     /**
      * cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);
      */
     public static void setDataSource(String url, Map<String, String> header, MediaPlayer mediaPlayer) {
-
+        Log.d(TAG, "url:" + url);
 
     }
 
@@ -24,14 +33,15 @@ public class MediaPlayerInstrument {
      * cdn.youga.instrument.MediaPlayerInstrument.prepareAsync(\$0);
      */
     public static void prepareAsync(MediaPlayer mediaPlayer) {
-
+        mStartPrepare = System.currentTimeMillis();
+        Log.d(TAG, "prepareAsync()");
     }
 
     /**
      * cdn.youga.instrument.MediaPlayerInstrument.play(\$0);
      */
     public static void play(MediaPlayer mediaPlayer) {
-
+        Log.d(TAG, "play()");
     }
 
     /**
@@ -40,9 +50,155 @@ public class MediaPlayerInstrument {
     public static void postEventFromNative(Object playerReference, int what, int ext1, int ext2, Object obj) {
         try {
             MediaPlayer mediaPlayer = (MediaPlayer) ((WeakReference) playerReference).get();
-            JSONObject jsonObject = new JSONObject((String) obj);
+            Log.d(TAG, "what:" + what + "-->ext1:" + ext1 + "-->ext2:" + ext2);
 
+            switch (what) {
+                case 369098762:
 
+                    break;
+                case 285212674:
+                case 285212752:
+                case 285212753:
+                case 285278210:
+                case 285278215:
+                case 285278216://onError ERROR_CODE_IO_ERROR
+                    if (state != PlayerState.PREPARING) {
+                        state = PlayerState.RECONNECTING;
+                    }
+//                    var5.c(-3);
+                    break;
+                case 285212675:
+                case 285212754:
+                case 285278211:
+                case 285278217://onInfo MEDIA_INFO_CONNECTED 连接成功
+//                    var5.a(var5, 200, ext1);
+
+                    break;
+                case 285212768://onBufferingUpdate
+                    Log.d(TAG, "onBufferingUpdate:" + 100);
+                    break;
+                case 285212769://onBufferingUpdate
+                    Log.d(TAG, "onBufferingUpdate:" + ext1);
+                    break;
+                case 285278214://onInfo MEDIA_INFO_METADATA
+                    JSONObject jsonObject = new JSONObject((String) obj);
+                    Log.d(TAG, "jsonObject:" + jsonObject.toString());
+                    break;
+                case 285343746://onInfo MEDIA_INFO_BUFFERING_START
+//                    if (ext1 == 2) {
+//                        var5.a(var5, 701, 0);
+//                    }
+                    break;
+                case 335544321://onError ERROR_CODE_HW_DECODE_FAILURE
+//                    var5.i = PlayerState.ERROR;
+//                    var5.c(-2003);
+                    break;
+                case 353370113://onInfo 	停止缓冲
+//                    if (!var5.D) {
+//                        var5.D = true; MEDIA_INFO_AUDIO_RENDERING_START 第一帧音频已成功播放
+//                        var5.a(var5, 10002, (int)(System.currentTimeMillis() - var5.h));
+//                    }
+//
+//                    var5.a(var5, 702, 0);
+                    break;
+                case 353370115://onError ERROR_CODE_PLAYER_CREATE_AUDIO_FAILED
+//                    if (ext1 > 0 && ext2 > 0) {
+//                        var5.w = ext1;
+//                        var5.x = ext2;
+//                        if (var5.d.a(ext1, ext2) != 0 || var5.d.b().getState() == 0) {
+//                            var5.c(-4410);
+//                        }
+//                    }
+                    break;
+                case 353370116://onInfo MEDIA_INFO_AUDIO_FRAME_RENDERING //音频帧的时间戳
+//                    var5.a(var5, 10005, ext1);
+//                    if (var5.i == PlayerState.RECONNECTING) {
+//                        var5.i = PlayerState.PLAYING_CACHE;
+//                    }
+                    break;
+                case 354418689://onInfo MEDIA_INFO_BUFFERING_END 停止缓冲
+                    if (!mFirstPlay) { //MEDIA_INFO_VIDEO_RENDERING_START  	第一帧视频已成功渲染
+                        mFirstPlay = true;
+                        final int var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+                        Logger.d("首播时间:" + var1);
+                    }
+//
+//                    var5.a(var5, 702, 0);
+                    break;
+                case 354418691://onVideoSizeChanged
+
+                    break;
+                case 354418692://onInfo MEDIA_INFO_VIDEO_FRAME_RENDERING 视频帧的时间戳
+//                    var5.a(var5, 10004, ext1);
+//                    if (var5.i == PlayerState.RECONNECTING) {
+//                        var5.i = PlayerState.PLAYING_CACHE;
+//                    }
+                    break;
+                case 354418693://onInfo MEDIA_INFO_VIDEO_ROTATION_CHANGED
+
+                    break;
+                case 369098753://onPrepared
+                    final int var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+                    Logger.d("首次缓冲时间:" + var1);
+                    break;
+                case 369098754://onError ERROR_CODE_OPEN_FAILED
+//                    if (var5.p <= 0 || ext1 != -2147483632) {
+//                        var5.F = false;
+//                        var5.i = PlayerState.ERROR;
+//                    }
+//
+//                    if (ext1 == -2147483632) {
+//                        var5.F = true;
+//                    }
+//
+//                    var5.c(-2);
+                    break;
+                case 369098757://onSeekComplete
+                    break;
+                case 369098758://onError ERROR_CODE_SEEK_FAILED
+//                    var5.i = PlayerState.ERROR;
+//                    var5.c(-4);
+                    break;
+                case 369098759:
+                    switch (ext1) {
+                        case 0://onCompletion
+//                            var5.i = PlayerState.COMPLETED;
+                            return;
+                        case 1://onInfo MEDIA_INFO_CACHED_COMPLETE
+//                            var5.a(var5, 1345, 0);
+                            return;
+                        default:
+                            return;
+                    }
+                case 402653187://onInfo MEDIA_INFO_VIDEO_GOP_TIME 获取视频的I帧间隔
+//                    var5.a(var5, 10003, ext1);
+                    break;
+                case 402653188://onInfo MEDIA_INFO_VIDEO_FPS 每秒传输帧数
+//                    var5.a(var5, 20002, ext1);
+                    Logger.d("视频每秒传输帧数:" + ext1);
+                    break;
+                case 402653189://onInfo MEDIA_INFO_AUDIO_FPS
+//                    var5.a(var5, 20004, ext1);
+                    break;
+                case 402653190://onInfo MEDIA_INFO_VIDEO_BITRATE 比特率 每秒传送的比特(bit)数
+//                    var5.a(var5, 20001, ext1);
+                    Logger.d("视频比特率:" + ext1);
+                    break;
+                case 402653191://onInfo MEDIA_INFO_AUDIO_BITRATE 比特率
+//                    var5.a(var5, 20003, ext1);
+                    break;
+                case 402653206://onInfo  MEDIA_INFO_BUFFERING_START 开始缓冲
+//                    var5.a(var5, 701, ext1);
+                    break;
+                case 402653207: //MEDIA_INFO_BUFFERING_END
+//                    var5.i = PlayerState.PLAYING;
+//                    int var6 = (int) (System.currentTimeMillis() - var5.j);
+//                    var5.a(var5, 702, var6);
+            }
+            if (obj instanceof String) {
+                JSONObject jsonObject = new JSONObject((String) obj);
+                Log.d(TAG, "jsonObject:" + jsonObject.toString());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

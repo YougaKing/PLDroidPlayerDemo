@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'cdn.youga.pldroid'
+//apply plugin: 'cdn.youga.pldroid'
 
 android {
     compileSdkVersion 27

@@ -283,6 +283,7 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
         }
     };
 
+
     private PLOnAudioFrameListener mOnAudioFrameListener = new PLOnAudioFrameListener() {
         @Override
         public void onAudioFrameAvailable(byte[] data, int size, int samplerate, int channels, int datawidth, long ts) {
