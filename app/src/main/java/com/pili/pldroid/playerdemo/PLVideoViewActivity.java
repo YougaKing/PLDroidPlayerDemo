@@ -157,7 +157,6 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
 
         @Override
         public void onPrepared(int i) {
-            Logger.d("初始化完成");
             mVideoView.start();
         }
     };
@@ -169,13 +168,10 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
 //            Log.i(TAG, "OnInfo, what = " + what + ", extra = " + extra);
             switch (what) {
                 case PLOnInfoListener.MEDIA_INFO_BUFFERING_START:
-                    Logger.d("开始缓冲");
                     break;
                 case PLOnInfoListener.MEDIA_INFO_BUFFERING_END:
-                    Logger.d("停止缓冲");
                     break;
                 case PLOnInfoListener.MEDIA_INFO_VIDEO_RENDERING_START:
-                    Logger.d("第一帧视频已成功渲染");
                     break;
                 case PLOnInfoListener.MEDIA_INFO_AUDIO_RENDERING_START:
                     break;
@@ -192,14 +188,12 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
 //                    Log.i(TAG, "Hardware decoding failure, switching software decoding!");
                     break;
                 case PLOnInfoListener.MEDIA_INFO_METADATA:
-                    Logger.d("读取到 metadata 信息\n" + mVideoView.getMetadata().toString());
                     break;
                 case PLOnInfoListener.MEDIA_INFO_VIDEO_BITRATE:
                 case PLOnInfoListener.MEDIA_INFO_VIDEO_FPS:
                     updateStatInfo();
                     break;
                 case PLOnInfoListener.MEDIA_INFO_CONNECTED:
-                    Logger.d("连接成功");
                     break;
                 case PLOnInfoListener.MEDIA_INFO_VIDEO_ROTATION_CHANGED:
 //                    Log.i(TAG, "Rotation changed: " + extra);
@@ -252,7 +246,6 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
     private PLOnBufferingUpdateListener mOnBufferingUpdateListener = new PLOnBufferingUpdateListener() {
         @Override
         public void onBufferingUpdate(int precent) {
-            Logger.d("onBufferingUpdate: " + precent);
         }
     };
 

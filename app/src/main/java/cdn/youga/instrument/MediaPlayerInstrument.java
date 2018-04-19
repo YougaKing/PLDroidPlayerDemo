@@ -2,11 +2,9 @@ package cdn.youga.instrument;
 
 import android.util.Log;
 
-import com.orhanobut.logger.Logger;
 import com.pili.pldroid.player.PlayerState;
 import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
@@ -38,10 +36,32 @@ public class MediaPlayerInstrument {
     }
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.play(\$0);
+     * cdn.youga.instrument.MediaPlayerInstrument.start(\$0);
      */
-    public static void play(MediaPlayer mediaPlayer) {
-        Log.d(TAG, "play()");
+    public static void start(MediaPlayer mediaPlayer) {
+        if (mediaPlayer.g() == PlayerState.PLAYING)
+            Log.e(TAG, "start()");
+    }
+
+    /**
+     * cdn.youga.instrument.MediaPlayerInstrument.pause(\$0);
+     */
+    public static void pause(MediaPlayer mediaPlayer) {
+        Log.e(TAG, "pause()");
+    }
+
+    /**
+     * cdn.youga.instrument.MediaPlayerInstrument.stop(\$0);
+     */
+    public static void stop(MediaPlayer mediaPlayer) {
+        Log.e(TAG, "stop()");
+    }
+
+    /**
+     * cdn.youga.instrument.MediaPlayerInstrument.seekTo(\$1,\$0);
+     */
+    public static void seekTo(int pos, MediaPlayer mediaPlayer) {
+        Log.e(TAG, "seekTo()");
     }
 
     /**
@@ -72,7 +92,8 @@ public class MediaPlayerInstrument {
                 case 285278211:
                 case 285278217://onInfo MEDIA_INFO_CONNECTED 连接成功
 //                    var5.a(var5, 200, ext1);
-
+                    int var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+                    Log.e(TAG, "建立连接时间:" + var1);
                     break;
                 case 285212768://onBufferingUpdate
                     Log.d(TAG, "onBufferingUpdate:" + 100);
@@ -119,8 +140,8 @@ public class MediaPlayerInstrument {
                 case 354418689://onInfo MEDIA_INFO_BUFFERING_END 停止缓冲
                     if (!mFirstPlay) { //MEDIA_INFO_VIDEO_RENDERING_START  	第一帧视频已成功渲染
                         mFirstPlay = true;
-                        final int var1 = (int) (System.currentTimeMillis() - mStartPrepare);
-                        Logger.d("首播时间:" + var1);
+                        var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+                        Log.e(TAG, "首播时间:" + var1);
                     }
 //
 //                    var5.a(var5, 702, 0);
@@ -138,8 +159,8 @@ public class MediaPlayerInstrument {
 
                     break;
                 case 369098753://onPrepared
-                    final int var1 = (int) (System.currentTimeMillis() - mStartPrepare);
-                    Logger.d("首次缓冲时间:" + var1);
+                    var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+                    Log.e(TAG, "准备完成时间:" + var1);
                     break;
                 case 369098754://onError ERROR_CODE_OPEN_FAILED
 //                    if (var5.p <= 0 || ext1 != -2147483632) {
@@ -175,14 +196,14 @@ public class MediaPlayerInstrument {
                     break;
                 case 402653188://onInfo MEDIA_INFO_VIDEO_FPS 每秒传输帧数
 //                    var5.a(var5, 20002, ext1);
-                    Logger.d("视频每秒传输帧数:" + ext1);
+                    Log.e(TAG, "视频每秒传输帧数:" + ext1);
                     break;
                 case 402653189://onInfo MEDIA_INFO_AUDIO_FPS
 //                    var5.a(var5, 20004, ext1);
                     break;
                 case 402653190://onInfo MEDIA_INFO_VIDEO_BITRATE 比特率 每秒传送的比特(bit)数
 //                    var5.a(var5, 20001, ext1);
-                    Logger.d("视频比特率:" + ext1);
+                    Log.e(TAG, "视频比特率:" + ext1);
                     break;
                 case 402653191://onInfo MEDIA_INFO_AUDIO_BITRATE 比特率
 //                    var5.a(var5, 20003, ext1);

@@ -62,9 +62,22 @@ class PldroidInject {
         project.logger.error("prepareAsync:" + prepareAsync)
         prepareAsync.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.prepareAsync(\$0);")
 
-        CtMethod play = clazz.getDeclaredMethod("c")
-        project.logger.error("play:" + play)
-        play.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.play(\$0);")
+        CtMethod start = clazz.getDeclaredMethod("c")
+        project.logger.error("start:" + start)
+        start.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.start(\$0);")
+
+        CtMethod pause = clazz.getDeclaredMethod("d")
+        project.logger.error("pause:" + pause)
+        pause.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.pause(\$0);")
+
+        CtMethod stop = clazz.getDeclaredMethod("e")
+        project.logger.error("stop:" + stop)
+        stop.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.stop(\$0);")
+
+        params = [CtClass.intType] as CtClass[]
+        CtMethod seekTo = clazz.getDeclaredMethod("a", params)
+        project.logger.error("seekTo:" + seekTo)
+        seekTo.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.seekTo(\$1,\$0);")
 
         params = [pool.get(Object.class.getName()), CtClass.intType, CtClass.intType, CtClass.intType, pool.get(Object.class.getName())] as CtClass[]
         CtMethod postEventFromNative = clazz.getDeclaredMethod("postEventFromNative", params)
