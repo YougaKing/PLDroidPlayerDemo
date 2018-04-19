@@ -1,9 +1,9 @@
 package cdn.youga.pldroid
 
+import com.android.build.api.transform.DirectoryInput
 import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
-import com.qiniu.qplayer.mediaEngine.MediaPlayer
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
@@ -15,13 +15,15 @@ import org.gradle.api.Project
 class PldroidInject {
 
 
-    static void injectJar(JarInput jarInput, TransformOutputProvider outputProvider, Project project) {
-        String jarPath = jarInput.file.absolutePath
+    static void injectJar(JarInput pldroidJarInput, DirectoryInput sourceDirectoryInput,
+                          TransformOutputProvider outputProvider, Project project) {
+        String jarPath = pldroidJarInput.file.absolutePath
+        String sourcePath = sourceDirectoryInput.file.absolutePath
 
-        if (!jarPath.endsWith("pldroid-player-2.1.1.jar")) return
 
         ClassPool pool = ClassPool.getDefault()
         pool.appendClassPath(jarPath)
+        pool.appendClassPath(sourcePath)
 
 
         File jarFile = new File(jarPath)
@@ -31,17 +33,17 @@ class PldroidInject {
         JarZipUtil.unzipJar(jarPath, jarZipDir)
 
         // 删除原来的jar包
-//        jarFile.delete()
+        jarFile.delete()
         // 注入代码
         pool.appendClassPath(jarZipDir)
 
 
         injectClass(jarZipDir, pool, project)
         // 从新打包jar
-//        JarZipUtil.zipJar(jarFile, jarZipDir, jarPath)
+        JarZipUtil.zipJar(jarFile, new File(jarZipDir))
 
         // 删除目录
-//        FileUtils.deleteDirectory(new File(jarZipDir))
+        FileUtils.deleteDirectory(new File(jarZipDir))
     }
 
 
@@ -53,41 +55,26 @@ class PldroidInject {
         if (clazz.isFrozen()) {
             clazz.defrost()
         }
-//
-//        for (int i = 0; i < clazz.declaredMethods.size(); i++) {
-//            def method = clazz.declaredMethods[i]
-//            project.logger.error(method.name)
-//            if (method.parameterTypes != null) {
-//                for (int j = 0; j < method.parameterTypes.size(); j++) {
-//                    project.logger.error(method.parameterTypes[j].name)
-//                }
-//            }
-//        }
 
         CtClass[] params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
         CtMethod setDataSource = clazz.getDeclaredMethod("a", params)
         project.logger.error("setDataSource:" + setDataSource)
+        setDataSource.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);")
 
-        setDataSource.insertAfter("cdn.youga.instrument.MediaPlayerInjection.setDataSource(\$1, \$2, \$0);")
+        CtMethod prepareAsync = clazz.getDeclaredMethod("b")
+        project.logger.error("prepareAsync:" + prepareAsync)
+        prepareAsync.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.prepareAsync(\$0);")
+
+        CtMethod play = clazz.getDeclaredMethod("c")
+        project.logger.error("play:" + play)
+        play.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.play(\$0);")
+
+        params = [pool.get(Object.class.getName()), CtClass.intType, CtClass.intType, CtClass.intType, pool.get(Object.class.getName())] as CtClass[]
+        CtMethod postEventFromNative = clazz.getDeclaredMethod("postEventFromNative", params)
+        project.logger.error("postEventFromNative:" + postEventFromNative)
+        postEventFromNative.insertBefore("cdn.youga.instrument.MediaPlayerInstrument.postEventFromNative(\$1, \$2, \$3,\$4, \$5);")
 
         clazz.writeFile(jarZipDir)
         clazz.detach()
     }
-
-
-    private static void exportJar(JarInput jarInput, TransformOutputProvider outputProvider) {
-        // 重命名输出文件（同目录copyFile会冲突）
-        def jarName = jarInput.name
-        def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
-        if (jarName.endsWith(".jar")) {
-            jarName = jarName.substring(0, jarName.length() - 4)
-        }
-        def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
-//        project.logger.error("dest = "+dest.absolutePath+"="+dest.exists())
-//        project.logger.error("jarInput.file = "+jarInput.file.absolutePath+"="+jarInput.file.exists())
-        dest.mkdirs()//需要先创建文件才可以哦
-        dest.createNewFile()
-        FileUtils.copyFile(jarInput.file, dest)
-    }
-
 }

@@ -1,1 +1,1 @@
-include ':app', ':cdnplugin', ':cdninstrument'
+include ':app', ':cdnplugin'

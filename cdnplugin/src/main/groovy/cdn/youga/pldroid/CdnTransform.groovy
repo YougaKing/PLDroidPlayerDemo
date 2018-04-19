@@ -42,19 +42,30 @@ class CdnTransform extends Transform {
         TransformOutputProvider outputProvider = transformInvocation.outputProvider
 
 
+        JarInput pldroidJarInput
+        //D:\StudioProject\PLDroidPlayer\PLDroidPlayerDemo\app\build\intermediates\classes\debug
+        DirectoryInput sourceDirectoryInput
         try {
             inputs.each { TransformInput input ->
-                //对 jar包 类型的inputs 进行遍历
+                input.directoryInputs.each { DirectoryInput directoryInput ->
+                    String directoryName = directoryInput.name
+                    mProject.logger.error "directoryName:" + directoryName + "-->" + directoryInput.file.absolutePath
+                    sourceDirectoryInput = directoryInput
+                }
                 input.jarInputs.each { JarInput jarInput ->
-                    def jarName = jarInput.name
-                    mProject.logger.error("jarName:" + jarName + "-->" + jarInput.file.getAbsolutePath())
-
-                    //这里处理自定义的逻辑
-                    PldroidInject.injectJar(jarInput, outputProvider, mProject)
+                    String jarName = jarInput.name
+                    String jarPath = jarInput.file.absolutePath
+                    mProject.logger.error "jarName:" + jarName + "-->jarPath:" + jarPath
+                    if (jarPath.endsWith("pldroid-player-2.1.1.jar")) {
+                        pldroidJarInput = jarInput
+                    }
                 }
             }
         } catch (Exception e) {
             mProject.logger.error e.getMessage()
+        }
+        if (pldroidJarInput != null && sourceDirectoryInput != null) {
+            PldroidInject.injectJar(pldroidJarInput, sourceDirectoryInput, outputProvider, mProject)
         }
         ClassPool.getDefault().clearImportedPackages()
         mProject.logger.error("JavassistTransform cast :" + (System.currentTimeMillis() - startTime) / 1000 + " secs")
