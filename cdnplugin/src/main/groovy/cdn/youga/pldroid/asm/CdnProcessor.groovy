@@ -36,13 +36,12 @@ class CdnProcessor {
             InputStream inputStream = file.getInputStream(jarEntry)
             jarOutputStream.putNextEntry(zipEntry)
 
-            println('entryName:' + entryName)
-
-            if ("com.qiniu.qplayer.mediaEngine.MediaPlayer.class" == entryName) {
+            if (entryName.startsWith("com/qiniu/qplayer/mediaEngine/MediaPlayer") && entryName.endsWith(".class")) {
+                println('entryName:' + entryName)
                 def bytes = referHackWhenInit(inputStream)
                 jarOutputStream.write(bytes)
             } else {
-                jarOutputStream.write(IOUtils.toByteArray(inputStream));
+                jarOutputStream.write(IOUtils.toByteArray(inputStream))
             }
             jarOutputStream.closeEntry()
         }
