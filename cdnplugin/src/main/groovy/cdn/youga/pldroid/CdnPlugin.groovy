@@ -1,6 +1,7 @@
 package cdn.youga.pldroid
 
 import cdn.youga.pldroid.asm.CdnAsmTransform
+import cdn.youga.pldroid.javassist.CdnJavassistTransform
 import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,7 +19,8 @@ class CdnPlugin implements Plugin<Project> {
         def android = project.extensions.getByType(AppExtension)
 
         //注册一个Transform
-        def classTransform = new CdnAsmTransform(project)
+//        def classTransform = new CdnAsmTransform(project)
+        def classTransform = new CdnJavassistTransform(project)
         android.registerTransform(classTransform)
     }
 }
