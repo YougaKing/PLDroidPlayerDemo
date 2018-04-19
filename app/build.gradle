@@ -52,4 +52,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.newrelic.agent.android:android-agent:5.18.0'
     implementation 'com.orhanobut:logger:2.1.1'
+    implementation files('libs/class-rewriter-5.18.0.jar')
+    implementation files('libs/android-agent-5.18.0.jar')
+    implementation files('libs/agent-gradle-plugin-5.18.0.jar')
 }

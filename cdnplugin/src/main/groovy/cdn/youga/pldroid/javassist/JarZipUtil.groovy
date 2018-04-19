@@ -1,4 +1,4 @@
-package cdn.youga.pldroid
+package cdn.youga.pldroid.javassist
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile

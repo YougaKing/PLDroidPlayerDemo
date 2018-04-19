@@ -1,14 +1,11 @@
-package cdn.youga.pldroid
+package cdn.youga.pldroid.javassist
 
 import com.android.build.api.transform.DirectoryInput
-import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
-import org.apache.commons.codec.digest.DigestUtils
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
 
@@ -42,8 +39,8 @@ class PldroidInject {
         // 从新打包jar
         JarZipUtil.zipJar(jarFile, new File(jarZipDir))
 
-        // 删除目录
-        FileUtils.deleteDirectory(new File(jarZipDir))
+//        // 删除目录
+//        FileUtils.deleteDirectory(new File(jarZipDir))
     }
 
 
