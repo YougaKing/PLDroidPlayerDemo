@@ -8,6 +8,7 @@ import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MediaPlayerInstrument {
@@ -22,7 +23,7 @@ public class MediaPlayerInstrument {
      * cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);
      */
     public static void setDataSource(String url, Map<String, String> header, MediaPlayer mediaPlayer) {
-        Log.d(TAG, "url:" + url);
+        Log.e(TAG, "setDataSource():" + url);
 
     }
 
@@ -32,7 +33,7 @@ public class MediaPlayerInstrument {
      */
     public static void prepareAsync(MediaPlayer mediaPlayer) {
         mStartPrepare = System.currentTimeMillis();
-        Log.d(TAG, "prepareAsync()");
+        Log.e(TAG, "prepareAsync()");
     }
 
     /**
@@ -216,7 +217,7 @@ public class MediaPlayerInstrument {
 //                    int var6 = (int) (System.currentTimeMillis() - var5.j);
 //                    var5.a(var5, 702, var6);
             }
-            if (obj instanceof String) {
+            if (obj != null) {
                 JSONObject jsonObject = new JSONObject((String) obj);
                 Log.d(TAG, "jsonObject:" + jsonObject.toString());
             }
