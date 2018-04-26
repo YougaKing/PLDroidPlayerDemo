@@ -1,5 +1,6 @@
 package cdn.youga.instrument;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.pili.pldroid.player.PlayerState;
@@ -11,20 +12,20 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cdn.youga.instrument.EventCodes.QC_MSG_PLAY_STOP;
+
 public class MediaPlayerInstrument {
 
 
-    private static PlayerState state = null;
     private static final String TAG = "MediaPlayerInstrument";
-    private static long mStartPrepare;
-    private static boolean mFirstPlay;
+
 
     /**
      * cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);
      */
     public static void setDataSource(String url, Map<String, String> header, MediaPlayer mediaPlayer) {
         Log.e(TAG, "setDataSource():" + url);
-
+        MediaCollect.setDataSource(url, mediaPlayer.g());
     }
 
 
@@ -32,8 +33,9 @@ public class MediaPlayerInstrument {
      * cdn.youga.instrument.MediaPlayerInstrument.prepareAsync(\$0);
      */
     public static void prepareAsync(MediaPlayer mediaPlayer) {
-        mStartPrepare = System.currentTimeMillis();
         Log.e(TAG, "prepareAsync()");
+        String url = mediaPlayer.r();
+        MediaCollect.prepareAsync(url, mediaPlayer.g());
     }
 
     /**
@@ -71,9 +73,13 @@ public class MediaPlayerInstrument {
     public static void postEventFromNative(Object playerReference, int what, int ext1, int ext2, Object obj) {
         try {
             MediaPlayer mediaPlayer = (MediaPlayer) ((WeakReference) playerReference).get();
-            Log.d(TAG, "what:" + what + "-->ext1:" + ext1 + "-->ext2:" + ext2);
-
+//            Log.d(TAG, "what:" + Integer.toHexString(what) + "-->ext1:" + ext1 + "-->ext2:" + ext2 + "obj:" + obj);
+            String url = mediaPlayer.r();
+            PlayerState playerState = mediaPlayer.g();
             switch (what) {
+                case QC_MSG_PLAY_STOP://停止
+                    MediaCollect.playStop(url, playerState);
+                    break;
                 case 369098762:
 
                     break;
@@ -83,9 +89,6 @@ public class MediaPlayerInstrument {
                 case 285278210:
                 case 285278215:
                 case 285278216://onError ERROR_CODE_IO_ERROR
-                    if (state != PlayerState.PREPARING) {
-                        state = PlayerState.RECONNECTING;
-                    }
 //                    var5.c(-3);
                     break;
                 case 285212675:
@@ -93,18 +96,17 @@ public class MediaPlayerInstrument {
                 case 285278211:
                 case 285278217://onInfo MEDIA_INFO_CONNECTED 连接成功
 //                    var5.a(var5, 200, ext1);
-                    int var1 = (int) (System.currentTimeMillis() - mStartPrepare);
-                    Log.e(TAG, "建立连接时间:" + var1);
+//                    Log.e(TAG, "建立连接时间");
                     break;
                 case 285212768://onBufferingUpdate
-                    Log.d(TAG, "onBufferingUpdate:" + 100);
+//                    Log.d(TAG, "onBufferingUpdate:" + 100);
                     break;
                 case 285212769://onBufferingUpdate
-                    Log.d(TAG, "onBufferingUpdate:" + ext1);
+//                    Log.d(TAG, "onBufferingUpdate:" + ext1);
                     break;
                 case 285278214://onInfo MEDIA_INFO_METADATA
-                    JSONObject jsonObject = new JSONObject((String) obj);
-                    Log.d(TAG, "jsonObject:" + jsonObject.toString());
+//                    JSONObject jsonObject = new JSONObject((String) obj);
+//                    Log.d(TAG, "jsonObject:" + jsonObject.toString());
                     break;
                 case 285343746://onInfo MEDIA_INFO_BUFFERING_START
 //                    if (ext1 == 2) {
@@ -139,13 +141,13 @@ public class MediaPlayerInstrument {
 //                    }
                     break;
                 case 354418689://onInfo MEDIA_INFO_BUFFERING_END 停止缓冲
-                    if (!mFirstPlay) { //MEDIA_INFO_VIDEO_RENDERING_START  	第一帧视频已成功渲染
-                        mFirstPlay = true;
-                        var1 = (int) (System.currentTimeMillis() - mStartPrepare);
-                        Log.e(TAG, "首播时间:" + var1);
-                    }
+//                    if (!mFirstPlay) { //MEDIA_INFO_VIDEO_RENDERING_START  	第一帧视频已成功渲染
+//                        var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+//                        Log.e(TAG, "首播时间:" + var1);
+//                    }
 //
 //                    var5.a(var5, 702, 0);
+                    Log.e(TAG, "停止缓冲");
                     break;
                 case 354418691://onVideoSizeChanged
 
@@ -160,8 +162,8 @@ public class MediaPlayerInstrument {
 
                     break;
                 case 369098753://onPrepared
-                    var1 = (int) (System.currentTimeMillis() - mStartPrepare);
-                    Log.e(TAG, "准备完成时间:" + var1);
+//                    var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+//                    Log.e(TAG, "准备完成时间:" + var1);
                     break;
                 case 369098754://onError ERROR_CODE_OPEN_FAILED
 //                    if (var5.p <= 0 || ext1 != -2147483632) {
@@ -197,29 +199,26 @@ public class MediaPlayerInstrument {
                     break;
                 case 402653188://onInfo MEDIA_INFO_VIDEO_FPS 每秒传输帧数
 //                    var5.a(var5, 20002, ext1);
-                    Log.e(TAG, "视频每秒传输帧数:" + ext1);
+//                    Log.e(TAG, "视频每秒传输帧数:" + ext1);
                     break;
                 case 402653189://onInfo MEDIA_INFO_AUDIO_FPS
 //                    var5.a(var5, 20004, ext1);
                     break;
                 case 402653190://onInfo MEDIA_INFO_VIDEO_BITRATE 比特率 每秒传送的比特(bit)数
 //                    var5.a(var5, 20001, ext1);
-                    Log.e(TAG, "视频比特率:" + ext1);
+//                    Log.e(TAG, "视频比特率:" + ext1);
                     break;
                 case 402653191://onInfo MEDIA_INFO_AUDIO_BITRATE 比特率
 //                    var5.a(var5, 20003, ext1);
                     break;
                 case 402653206://onInfo  MEDIA_INFO_BUFFERING_START 开始缓冲
 //                    var5.a(var5, 701, ext1);
+                    Log.e(TAG, "开始缓冲");
                     break;
                 case 402653207: //MEDIA_INFO_BUFFERING_END
 //                    var5.i = PlayerState.PLAYING;
 //                    int var6 = (int) (System.currentTimeMillis() - var5.j);
 //                    var5.a(var5, 702, var6);
-            }
-            if (obj != null) {
-                JSONObject jsonObject = new JSONObject((String) obj);
-                Log.d(TAG, "jsonObject:" + jsonObject.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
