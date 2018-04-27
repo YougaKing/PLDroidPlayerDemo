@@ -18,6 +18,8 @@ public class Meta {
     private long IO_FIRST_BYTE_DONE;
     private long PARSER_NEW_STREAM;
     private long SNKV_FIRST_FRAME;
+    private long BUFF_START_BUFFERING;
+    private long BUFF_END_BUFFERING;
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("HH : mm : ss : SSSS", Locale.CHINA);
     public String ip;
     public long length;
@@ -26,6 +28,8 @@ public class Meta {
     public long firstByte;
     public long parserFirstStream;
     public long firstFrame;
+    public long bufferingCount;
+    public long bufferingTime;
 
     //QC_MSG_HTTP_DNS_START           00 : 00 : 00 : 003           0             0    ghc40.aipai.com
     public void parse(String[] logs) throws ParseException {
@@ -48,6 +52,14 @@ public class Meta {
             PARSER_NEW_STREAM = mDateFormat.parse(time).getTime();
         } else if (type.endsWith("SNKV_FIRST_FRAME")) {
             SNKV_FIRST_FRAME = mDateFormat.parse(time).getTime();
+        } else if (type.endsWith("BUFF_START_BUFFERING")) {
+            BUFF_START_BUFFERING = mDateFormat.parse(time).getTime();
+        } else if (type.endsWith("BUFF_END_BUFFERING")) {
+            BUFF_END_BUFFERING = mDateFormat.parse(time).getTime();
+            if (BUFF_END_BUFFERING > BUFF_START_BUFFERING) {
+                bufferingCount++;
+                bufferingTime += BUFF_END_BUFFERING - BUFF_START_BUFFERING;
+            }
         }
     }
 

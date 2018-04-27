@@ -47,6 +47,8 @@ public class MediaMeta {
         Log.e(TAG, "firstByte:" + mMeta.firstByte);
         Log.e(TAG, "parserFirstStream:" + mMeta.parserFirstStream);
         Log.e(TAG, "firstFrame:" + mMeta.firstFrame);
+        Log.e(TAG, "bufferingCount:" + mMeta.bufferingCount);
+        Log.e(TAG, "bufferingTime:" + mMeta.bufferingTime);
     }
 
 
