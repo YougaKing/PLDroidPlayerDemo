@@ -2,8 +2,10 @@ package cdn.youga.pldroid.javassist
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 import javassist.ClassPool
+import org.apache.commons.io.FileUtils
 
 class CdnJavassistTransform extends Transform {
 
@@ -45,8 +47,6 @@ class CdnJavassistTransform extends Transform {
         return false
     }
 
-
-
     //    Transform中的核心方法，
     //    inputs中是传过来的输入流，其中有两种格式，一种是jar包格式一种是目录格式。
     //    outputProvider 获取到输出目录，最后将修改的文件复制到输出目录，这一步必须做不然编译会报错
@@ -68,13 +68,19 @@ class CdnJavassistTransform extends Transform {
                     String directoryName = directoryInput.name
                     mProject.logger.error "directoryName:" + directoryName + "-->" + directoryInput.file.absolutePath
                     sourceDirectoryInput = directoryInput
+                    def dst = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
+                    FileUtils.copyDirectory(directoryInput.file, dst)
                 }
                 input.jarInputs.each { JarInput jarInput ->
                     String jarName = jarInput.name
                     String jarPath = jarInput.file.absolutePath
-                    mProject.logger.error "jarName:" + jarName + "-->jarPath:" + jarPath
                     if (jarPath.endsWith("pldroid-player-2.1.1.jar")) {
                         pldroidJarInput = jarInput
+                        mProject.logger.error "jarName:" + jarName + "-->jarPath:" + jarPath
+                    } else {
+                        def dst = outputProvider.getContentLocation(jarInput.name + DigestUtils.md5Hex(jarInput.file.getAbsolutePath()), jarInput.contentTypes, jarInput.scopes, Format.JAR)
+                        mProject.logger.error("dst:" + dst.getAbsolutePath())
+                        FileUtils.copyFile(jarInput.file, dst)
                     }
                 }
             }

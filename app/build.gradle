@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'cdn.youga.pldroid'
+//apply plugin: 'newrelic'
+apply plugin: 'cdn.youga.pldroid'
 
 android {
     compileSdkVersion 27
@@ -47,9 +48,10 @@ android {
 }
 
 dependencies {
-    implementation files('libs/pldroid-player-2.1.1.jar')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.newrelic.agent.android:android-agent:5.18.0'
+    //    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.orhanobut:logger:2.1.1'
 }

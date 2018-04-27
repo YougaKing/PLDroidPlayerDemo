@@ -20,8 +20,15 @@ import com.pili.pldroid.player.AVOptions;
 import com.pili.pldroid.playerdemo.utils.GetPathFromUri;
 import com.pili.pldroid.playerdemo.utils.PermissionChecker;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -66,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         mActivitySpinner.setSelection(2);
 
         mVideoCacheCheckBox = findViewById(R.id.CacheCheckBox);
-        mLoopCheckBox =  findViewById(R.id.LoopCheckBox);
+        mLoopCheckBox = findViewById(R.id.LoopCheckBox);
         mVideoDataCallback = findViewById(R.id.VideoCallback);
         mAudioDataCallback = findViewById(R.id.AudioCallback);
         mDisableCheckBox = findViewById(R.id.DisableLog);
@@ -77,6 +84,23 @@ public class MainActivity extends AppCompatActivity {
                 if (!isPermissionOK()) {
                     mVideoCacheCheckBox.setChecked(false);
                 }
+            }
+        });
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .build();
+        Request request = new Request.Builder()
+                .url("http://ghc40.aipai.com/user/114/993529114/1006/card/46329100/card_original.mp4?qq-pf-to=pcqq.group")
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
             }
         });
     }
@@ -108,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "选择要导入的视频"), 0);
     }
 
-    public void onClickScanQrcode(View v){
+    public void onClickScanQrcode(View v) {
 
     }
 

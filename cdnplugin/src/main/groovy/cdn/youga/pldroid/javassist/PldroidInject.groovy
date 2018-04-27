@@ -1,13 +1,14 @@
 package cdn.youga.pldroid.javassist
 
 import com.android.build.api.transform.DirectoryInput
+import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.TransformOutputProvider
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
-
 
 class PldroidInject {
 
@@ -19,27 +20,30 @@ class PldroidInject {
 
 
         ClassPool pool = ClassPool.getDefault()
-        pool.appendClassPath(jarPath)
         pool.appendClassPath(sourcePath)
 
+        def jarName = pldroidJarInput.name
+        def md5Name = DigestUtils.md5Hex(pldroidJarInput.file.getAbsolutePath())
 
-        File jarFile = new File(jarPath)
+        //生成输出路径
+        File dest = outputProvider.getContentLocation(jarName + md5Name, pldroidJarInput.contentTypes, pldroidJarInput.scopes, Format.JAR)
+        project.logger.error("dest:" + dest.getAbsolutePath())
+
+
         // jar包解压后的保存路径
-        String jarZipDir = jarFile.getParent() + "/" + jarFile.getName().replace('.jar', '')
+        String jarZipDir = dest.getParent() + "/" + dest.getName().replace('.jar', '')
         // 解压jar包, 返回jar包中所有class的完整类名的集合（带.class后缀）
         JarZipUtil.unzipJar(jarPath, jarZipDir)
 
-        // 删除原来的jar包
-        jarFile.delete()
         // 注入代码
         pool.appendClassPath(jarZipDir)
-
-
         injectClass(jarZipDir, pool, project)
-        // 从新打包jar
-        JarZipUtil.zipJar(jarFile, new File(jarZipDir))
 
-//        // 删除目录
+        // 从新打包jar
+        JarZipUtil.zipJar(dest, new File(jarZipDir))
+
+        pool.clearImportedPackages()
+        // 删除目录
 //        FileUtils.deleteDirectory(new File(jarZipDir))
     }
 
@@ -49,9 +53,7 @@ class PldroidInject {
         project.logger.error("jarZipDir:" + jarZipDir)
         CtClass clazz = pool.get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
 
-        if (clazz.isFrozen()) {
-            clazz.defrost()
-        }
+        if (clazz.isFrozen()) clazz.defrost()
 
         CtClass[] params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
         CtMethod setDataSource = clazz.getDeclaredMethod("a", params)
@@ -85,6 +87,7 @@ class PldroidInject {
         postEventFromNative.insertBefore("cdn.youga.instrument.MediaPlayerInstrument.postEventFromNative(\$1, \$2, \$3,\$4, \$5);")
 
         clazz.writeFile(jarZipDir)
+        clazz.defrost()
         clazz.detach()
     }
 }
