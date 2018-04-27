@@ -49,11 +49,7 @@ public class MediaCollect {
         MediaMeta mediaMeta = findMetaData(url);
         if (mediaMeta == null) return;
         mediaMeta.setPlayerState(playerState);
-        try {
-            mediaMeta.playStop();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        mediaMeta.playStop();
     }
 
     private static class LogThread extends Thread {
@@ -83,7 +79,7 @@ public class MediaCollect {
                     if (line.contains(filter)) {
                         String log = line.substring(line.indexOf(filter)).replace(filter, "").trim();
                         String[] logs = log.split("[ ]{2,}");
-                        mMediaMeta.addMeta(new Meta(logs));
+                        mMediaMeta.addLogs(logs);
 //                        Runtime.getRuntime().exec(clear);
 //                        Log.w(TAG, Arrays.toString(logs));
                         Thread.yield();
