@@ -20,6 +20,7 @@ public class Meta {
     private long SNKV_FIRST_FRAME;
     private long BUFF_START_BUFFERING;
     private long BUFF_END_BUFFERING;
+    private long HTTP_DOWNLOAD_PERCENT;
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("HH : mm : ss : SSSS", Locale.CHINA);
     public String ip;
     public long length;
@@ -30,6 +31,8 @@ public class Meta {
     public long firstFrame;
     public long bufferingCount;
     public long bufferingTime;
+    public long downloadTime;
+    public long downloadLength;
 
     //QC_MSG_HTTP_DNS_START           00 : 00 : 00 : 003           0             0    ghc40.aipai.com
     public void parse(String[] logs) throws ParseException {
@@ -60,6 +63,9 @@ public class Meta {
                 bufferingCount++;
                 bufferingTime += BUFF_END_BUFFERING - BUFF_START_BUFFERING;
             }
+        } else if (type.endsWith("HTTP_DOWNLOAD_PERCENT")) {
+            HTTP_DOWNLOAD_PERCENT = mDateFormat.parse(time).getTime();
+            downloadLength = Long.valueOf(logs[3]);
         }
     }
 
@@ -69,5 +75,6 @@ public class Meta {
         firstByte = IO_FIRST_BYTE_DONE - HTTP_CONNECT_SUCESS;
         parserFirstStream = PARSER_NEW_STREAM - IO_FIRST_BYTE_DONE;
         firstFrame = SNKV_FIRST_FRAME - HTTP_CONNECT_START;
+        downloadTime = HTTP_DOWNLOAD_PERCENT - HTTP_CONNECT_START;
     }
 }

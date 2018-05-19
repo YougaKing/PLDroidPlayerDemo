@@ -1,18 +1,12 @@
 package cdn.youga.instrument;
 
-import android.content.Intent;
 import android.util.Log;
 
 import com.pili.pldroid.player.PlayerState;
 import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 
-import org.json.JSONObject;
-
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Map;
-
-import static cdn.youga.instrument.EventCodes.QC_MSG_PLAY_STOP;
 
 public class MediaPlayerInstrument {
 
@@ -21,7 +15,7 @@ public class MediaPlayerInstrument {
 
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);
+     * com.youga.pldroid.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);
      */
     public static void setDataSource(String url, Map<String, String> header, MediaPlayer mediaPlayer) {
         Log.e(TAG, "setDataSource():" + url);
@@ -30,7 +24,7 @@ public class MediaPlayerInstrument {
 
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.prepareAsync(\$0);
+     * com.youga.pldroid.MediaPlayerInstrument.prepareAsync(\$0);
      */
     public static void prepareAsync(MediaPlayer mediaPlayer) {
         Log.e(TAG, "prepareAsync()");
@@ -39,7 +33,7 @@ public class MediaPlayerInstrument {
     }
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.start(\$0);
+     * com.youga.pldroid.MediaPlayerInstrument.start(\$0);
      */
     public static void start(MediaPlayer mediaPlayer) {
         if (mediaPlayer.g() == PlayerState.PLAYING)
@@ -47,21 +41,21 @@ public class MediaPlayerInstrument {
     }
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.pause(\$0);
+     * com.youga.pldroid.MediaPlayerInstrument.pause(\$0);
      */
     public static void pause(MediaPlayer mediaPlayer) {
         Log.e(TAG, "pause()");
     }
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.stop(\$0);
+     * com.youga.pldroid.MediaPlayerInstrument.stop(\$0);
      */
     public static void stop(MediaPlayer mediaPlayer) {
         Log.e(TAG, "stop()");
     }
 
     /**
-     * cdn.youga.instrument.MediaPlayerInstrument.seekTo(\$1,\$0);
+     * com.youga.pldroid.MediaPlayerInstrument.seekTo(\$1,\$0);
      */
     public static void seekTo(int pos, MediaPlayer mediaPlayer) {
         Log.e(TAG, "seekTo()");
@@ -77,7 +71,7 @@ public class MediaPlayerInstrument {
             String url = mediaPlayer.r();
             PlayerState playerState = mediaPlayer.g();
             switch (what) {
-                case QC_MSG_PLAY_STOP://停止
+                case EventCodes.QC_MSG_PLAY_STOP://停止
                     MediaCollect.playStop(url, playerState);
                     break;
                 case 369098762:

@@ -49,7 +49,11 @@ public class MediaMeta {
         Log.e(TAG, "firstFrame:" + mMeta.firstFrame);
         Log.e(TAG, "bufferingCount:" + mMeta.bufferingCount);
         Log.e(TAG, "bufferingTime:" + mMeta.bufferingTime);
+        Log.e(TAG, "downloadLength:" + mMeta.downloadLength);
+        Log.e(TAG, "downloadTime:" + mMeta.downloadTime);
     }
 
-
+    public Meta getMeta() {
+        return mMeta == null ? new Meta() : mMeta;
+    }
 }

@@ -1,0 +1,49 @@
+// Copyright 2015 The gRPC Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "cdn.youga.instrument";
+option java_outer_classname = "CdnProto";
+option objc_class_prefix = "HLW";
+
+package cdn;
+
+// The greeting service definition.
+service Greeter {
+    // Sends a greeting
+    rpc SendSdn (CdnRequest) returns (CdnReply) {
+    }
+}
+
+// The request message containing the user's name.
+message CdnRequest {
+    string url = 1;
+    string ip = 2;
+    int64 length = 3;
+    int64 dnsTime = 4;
+    int64 httpTime = 5;
+    int64 firstByte = 6;
+    int64 parserFirstStream = 7;
+    int64 firstFrame = 8;
+    int64 bufferingCount = 9;
+    int64 bufferingTime = 10;
+    int64 downloadTime = 11;
+    int64 downloadLength = 12;
+}
+
+// The response message containing the greetings
+message CdnReply {
+    int32 code = 1;
+}

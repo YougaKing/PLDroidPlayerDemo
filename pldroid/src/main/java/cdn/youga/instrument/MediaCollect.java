@@ -5,7 +5,6 @@ import com.pili.pldroid.player.PlayerState;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +49,7 @@ public class MediaCollect {
         if (mediaMeta == null) return;
         mediaMeta.setPlayerState(playerState);
         mediaMeta.playStop();
+        CdnRpc.addTask(mediaMeta);
     }
 
     private static class LogThread extends Thread {
