@@ -1,1 +1,1 @@
-include ':app', ':cdnplugin', ':pldroid','server'
+include ':app', ':cdnplugin', ':pldroid-cdn','server'

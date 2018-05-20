@@ -22,7 +22,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-        def dexTask = project.tasks.findByName("transformClassesWithDexBuilderForDebug")
+//        def dexTask = project.tasks.findByName("transformClassesWithDexBuilderForDebug")
 //        def preDexTask = project.tasks.findByName("transformDexArchiveWithDexMergerForDebug")
 //        if (preDexTask) {
 //            project.logger.error "======preDexTask======"
@@ -51,8 +51,14 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-    implementation 'com.newrelic.agent.android:android-agent:5.18.0'
-    //    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.orhanobut:logger:2.1.1'
-    implementation project(':pldroid')
+    implementation 'io.grpc:grpc-okhttp:1.12.0'
+    // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-protobuf-lite:1.12.0'
+    // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-stub:1.12.0'
+    // CURRENT_GRPC_VERSION
+    implementation 'javax.annotation:javax.annotation-api:1.2'
+    implementation files('libs/pldroid-cdn.jar')
 }

@@ -1,93 +1,119 @@
 package cdn.youga.pldroid.javassist
 
-import com.android.build.api.transform.DirectoryInput
-import com.android.build.api.transform.Format
-import com.android.build.api.transform.JarInput
-import com.android.build.api.transform.TransformOutputProvider
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
-import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
+
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+import java.util.zip.ZipEntry
 
 class PldroidInject {
 
 
-    static void injectJar(JarInput pldroidJarInput, DirectoryInput sourceDirectoryInput,
-                          TransformOutputProvider outputProvider, Project project) {
-        String jarPath = pldroidJarInput.file.absolutePath
-        String sourcePath = sourceDirectoryInput.file.absolutePath
-
-
-        ClassPool pool = ClassPool.getDefault()
-        pool.appendClassPath(sourcePath)
-
-        def jarName = pldroidJarInput.name
-        def md5Name = DigestUtils.md5Hex(pldroidJarInput.file.getAbsolutePath())
-
-        //生成输出路径
-        File dest = outputProvider.getContentLocation(jarName + md5Name, pldroidJarInput.contentTypes, pldroidJarInput.scopes, Format.JAR)
-        project.logger.error("dest:" + dest.getAbsolutePath())
-
-
+    static void injectRebirthJar(File pldroidJarFile, Project project) {
         // jar包解压后的保存路径
-        String jarZipDir = dest.getParent() + "/" + dest.getName().replace('.jar', '')
+        String jarZipDir = pldroidJarFile.getParent() + "/" + pldroidJarFile.getName().replace('.jar', '')
         // 解压jar包, 返回jar包中所有class的完整类名的集合（带.class后缀）
-        JarZipUtil.unzipJar(jarPath, jarZipDir)
+        JarZipUtil.unzipJar(pldroidJarFile.absolutePath, jarZipDir)
 
         // 注入代码
-        pool.appendClassPath(jarZipDir)
-        injectClass(jarZipDir, pool, project)
+        CtClass ctClass = injectClass(project)
+        ctClass.writeFile(jarZipDir)
+        ctClass.detach()
 
-        // 从新打包jar
-        JarZipUtil.zipJar(dest, new File(jarZipDir))
+        // 重新打包jar
+        JarZipUtil.zipJar(pldroidJarFile, new File(jarZipDir))
 
-        pool.clearImportedPackages()
         // 删除目录
 //        FileUtils.deleteDirectory(new File(jarZipDir))
     }
 
+    static File injectReviveJar(File pldroidJarFile, Project project) {
+        File optJar = new File(pldroidJarFile.getParent(), pldroidJarFile.name + ".opt")
+        if (optJar.exists())
+            optJar.delete()
+        JarFile jarFile = new JarFile(pldroidJarFile)
 
-    private
-    static void injectClass(String jarZipDir, ClassPool pool, Project project) {
-        project.logger.error("jarZipDir:" + jarZipDir)
-        CtClass clazz = pool.get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
+        Enumeration<JarEntry> enumeration = jarFile.entries()
+        JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(optJar))
 
-        if (clazz.isFrozen()) clazz.defrost()
+
+        while (enumeration.hasMoreElements()) {
+            JarEntry jarEntry = enumeration.nextElement()
+            String entryName = jarEntry.getName()
+            ZipEntry zipEntry = new ZipEntry(entryName)
+
+            InputStream inputStream = jarFile.getInputStream(jarEntry)
+            jarOutputStream.putNextEntry(zipEntry)
+
+            if (entryName == "com/qiniu/qplayer/mediaEngine/MediaPlayer.class") {
+                // 注入代码
+                CtClass ctClass = injectClass(project)
+                ctClass.detach()
+
+                jarOutputStream.write(ctClass.toBytecode())
+            } else {
+                jarOutputStream.write(IOUtils.toByteArray(inputStream))
+            }
+            jarOutputStream.closeEntry()
+        }
+        jarOutputStream.close()
+        jarFile.close()
+
+        if (pldroidJarFile.exists()) pldroidJarFile.delete()
+
+        optJar.renameTo(pldroidJarFile)
+    }
+
+
+    static CtClass injectClass(Project project) {
+        ClassPool pool = ClassPool.getDefault()
+
+        CtClass mediaPlayer = pool.get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
+
+        if (mediaPlayer.isFrozen()) mediaPlayer.defrost()
 
         CtClass[] params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
-        CtMethod setDataSource = clazz.getDeclaredMethod("a", params)
+        CtMethod setDataSource = mediaPlayer.getDeclaredMethod("a", params)
         project.logger.error("setDataSource:" + setDataSource)
         setDataSource.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);")
 
-        CtMethod prepareAsync = clazz.getDeclaredMethod("b")
+        CtMethod prepareAsync = mediaPlayer.getDeclaredMethod("b")
         project.logger.error("prepareAsync:" + prepareAsync)
         prepareAsync.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.prepareAsync(\$0);")
 
-        CtMethod start = clazz.getDeclaredMethod("c")
+        CtMethod start = mediaPlayer.getDeclaredMethod("c")
         project.logger.error("start:" + start)
         start.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.start(\$0);")
 
-        CtMethod pause = clazz.getDeclaredMethod("d")
+        CtMethod pause = mediaPlayer.getDeclaredMethod("d")
         project.logger.error("pause:" + pause)
         pause.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.pause(\$0);")
 
-        CtMethod stop = clazz.getDeclaredMethod("e")
+        CtMethod stop = mediaPlayer.getDeclaredMethod("e")
         project.logger.error("stop:" + stop)
         stop.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.stop(\$0);")
 
         params = [CtClass.intType] as CtClass[]
-        CtMethod seekTo = clazz.getDeclaredMethod("a", params)
+        CtMethod seekTo = mediaPlayer.getDeclaredMethod("a", params)
         project.logger.error("seekTo:" + seekTo)
         seekTo.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.seekTo(\$1,\$0);")
 
         params = [pool.get(Object.class.getName()), CtClass.intType, CtClass.intType, CtClass.intType, pool.get(Object.class.getName())] as CtClass[]
-        CtMethod postEventFromNative = clazz.getDeclaredMethod("postEventFromNative", params)
+        CtMethod postEventFromNative = mediaPlayer.getDeclaredMethod("postEventFromNative", params)
         project.logger.error("postEventFromNative:" + postEventFromNative)
         postEventFromNative.insertBefore("cdn.youga.instrument.MediaPlayerInstrument.postEventFromNative(\$1, \$2, \$3,\$4, \$5);")
 
-        clazz.writeFile(jarZipDir)
-        clazz.defrost()
-        clazz.detach()
+
+        CtClass mediaPlayerInstrument = pool.get("cdn.youga.instrument.MediaPlayerInstrument")
+        mediaPlayerInstrument.detach()
+        mediaPlayerInstrument.defrost()
+
+        return mediaPlayer
     }
 }

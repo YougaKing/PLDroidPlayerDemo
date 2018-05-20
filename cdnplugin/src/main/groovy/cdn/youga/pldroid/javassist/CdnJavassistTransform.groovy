@@ -2,22 +2,25 @@ package cdn.youga.pldroid.javassist
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
-import org.apache.commons.codec.digest.DigestUtils
-import org.gradle.api.Project
 import javassist.ClassPool
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
+import org.gradle.api.Project
+
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 class CdnJavassistTransform extends Transform {
 
     Project mProject
 
     CdnJavassistTransform(Project project) {
-        mProject = project;
+        mProject = project
     }
 
     @Override
     String getName() {
-        return "CdnJavassistTransform"
+        return "cdnJavassistTransform"
     }
 
     //需要处理的数据类型，有两种枚举类型
@@ -58,39 +61,61 @@ class CdnJavassistTransform extends Transform {
         Collection<TransformInput> inputs = transformInvocation.inputs
         TransformOutputProvider outputProvider = transformInvocation.outputProvider
 
-
-        JarInput pldroidJarInput
-        //D:\StudioProject\PLDroidPlayer\PLDroidPlayerDemo\app\build\intermediates\classes\debug
-        DirectoryInput sourceDirectoryInput
+        File pldroidJarFile
         try {
             inputs.each { TransformInput input ->
                 input.directoryInputs.each { DirectoryInput directoryInput ->
-                    String directoryName = directoryInput.name
-                    mProject.logger.error "directoryName:" + directoryName + "-->" + directoryInput.file.absolutePath
-                    sourceDirectoryInput = directoryInput
-                    def dst = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
+
+                    File dst = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
+
+                    mProject.logger.error "directoryName:" + directoryInput.name + "directoryPath" + directoryInput.file.absolutePath + "\ndst:" + dst.absolutePath
+
                     FileUtils.copyDirectory(directoryInput.file, dst)
+
+                    ClassPool.getDefault().appendClassPath(dst.absolutePath)
                 }
                 input.jarInputs.each { JarInput jarInput ->
-                    String jarName = jarInput.name
-                    String jarPath = jarInput.file.absolutePath
-                    if (jarPath.endsWith("pldroid-player-2.1.1.jar")) {
-                        pldroidJarInput = jarInput
-                        mProject.logger.error "jarName:" + jarName + "-->jarPath:" + jarPath
-                    } else {
-                        def dst = outputProvider.getContentLocation(jarInput.name + DigestUtils.md5Hex(jarInput.file.getAbsolutePath()), jarInput.contentTypes, jarInput.scopes, Format.JAR)
-                        mProject.logger.error("dst:" + dst.getAbsolutePath())
-                        FileUtils.copyFile(jarInput.file, dst)
-                    }
+
+                    File dst = outputProvider.getContentLocation(jarInput.name + DigestUtils.md5Hex(jarInput.file.getAbsolutePath()), jarInput.contentTypes, jarInput.scopes, Format.JAR)
+
+                    mProject.logger.error "jarName:" + jarInput.name + "jarPath:" + jarInput.file.absolutePath + "\ndst:" + dst.absolutePath
+
+                    FileUtils.copyFile(jarInput.file, dst)
+
+                    ClassPool.getDefault().appendClassPath(dst.absolutePath)
+
+                    if (pldroidJarFile == null && isPldroidJar(dst)) pldroidJarFile = dst
                 }
             }
         } catch (Exception e) {
-            mProject.logger.error e.getMessage()
+            StringWriter sw = new StringWriter()
+            e.printStackTrace(new PrintWriter(sw))
+            mProject.logger.error "error:" + sw.toString()
         }
-        if (pldroidJarInput != null && sourceDirectoryInput != null) {
-            PldroidInject.injectJar(pldroidJarInput, sourceDirectoryInput, outputProvider, mProject)
-        }
+
+        if (pldroidJarFile != null) PldroidInject.injectRebirthJar(pldroidJarFile, mProject)
+
         ClassPool.getDefault().clearImportedPackages()
-        mProject.logger.error("JavassistTransform cast :" + (System.currentTimeMillis() - startTime) / 1000 + " secs")
+        mProject.logger.debug("cdnJavassistTransform cast :" + (System.currentTimeMillis() - startTime) / 1000 + " secs")
+    }
+
+
+    static boolean isPldroidJar(File file) {
+        JarFile jarFile = new JarFile(file)
+        Enumeration<JarEntry> enumeration = jarFile.entries()
+
+        while (enumeration.hasMoreElements()) {
+            JarEntry jarEntry = enumeration.nextElement()
+            if (jarEntry.directory) {
+                continue
+            }
+            String entryName = jarEntry.getName()
+
+            if (entryName == "com/qiniu/qplayer/mediaEngine/MediaPlayer.class") {
+                return true
+            }
+        }
+        jarFile.close()
+        return false
     }
 }

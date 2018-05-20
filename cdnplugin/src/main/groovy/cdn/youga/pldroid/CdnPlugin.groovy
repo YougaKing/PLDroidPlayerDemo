@@ -9,10 +9,9 @@ class CdnPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def log = project.logger
-        log.error "========================"
-        log.error "CdnPlugin apply ()"
-        log.error "========================"
+        project.logger.error "========================"
+        project.logger.error "CdnPlugin apply ()"
+        project.logger.error "========================"
 
         //AppExtension就是build.gradle中android{...}这一块
         def android = project.extensions.getByType(AppExtension)
