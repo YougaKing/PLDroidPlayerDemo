@@ -17,17 +17,14 @@ public class MediaCollect {
 
     private static List<MediaMeta> sMetaDataList = new ArrayList<>();
 
-
-    public static MediaMeta setDataSource(String url, PlayerState playerState) {
+    public static void setDataSource(String url, PlayerState playerState) {
         MediaMeta meta = findMetaData(url);
         if (meta == null) {
             meta = new MediaMeta(url);
             sMetaDataList.add(meta);
         }
         meta.setPlayerState(playerState);
-        return meta;
     }
-
 
     private static MediaMeta findMetaData(String url) {
         for (MediaMeta meta : sMetaDataList) {
@@ -47,9 +44,10 @@ public class MediaCollect {
     public static void playStop(String url, PlayerState playerState) {
         MediaMeta mediaMeta = findMetaData(url);
         if (mediaMeta == null) return;
+        sMetaDataList.remove(mediaMeta);
         mediaMeta.setPlayerState(playerState);
         mediaMeta.playStop();
-        CdnRpc.addTask(mediaMeta);
+        PldroidCdn.getInstance().addTask(mediaMeta);
     }
 
     private static class LogThread extends Thread {

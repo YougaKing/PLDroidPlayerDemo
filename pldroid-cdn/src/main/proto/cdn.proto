@@ -20,14 +20,20 @@ option objc_class_prefix = "HLW";
 
 package cdn;
 
-// The greeting service definition.
 service Greeter {
-    // Sends a greeting
     rpc SendSdn (CdnRequest) returns (CdnReply) {
+    }
+
+    rpc DownloadFile (FileUrl) returns (stream FileData) {
+    }
+
+    rpc UploadFile (stream FileData) returns (FileUrl) {
+    }
+
+    rpc ChannelFile (stream FileData) returns (stream FileData) {
     }
 }
 
-// The request message containing the user's name.
 message CdnRequest {
     string url = 1;
     string ip = 2;
@@ -43,7 +49,15 @@ message CdnRequest {
     int64 downloadLength = 12;
 }
 
-// The response message containing the greetings
 message CdnReply {
     int32 code = 1;
+}
+
+message FileUrl {
+    string url = 1;
+}
+
+message FileData {
+    string url = 1;
+    bytes data = 2;
 }
