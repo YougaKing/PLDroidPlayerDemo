@@ -8,6 +8,7 @@ package cdn.youga.instrument;
 public class PldroidCdn {
 
     private static PldroidCdn INSTACE;
+    private PldroidPlayerListener mPlayerListener;
 
     public static PldroidCdn getInstance() {
         if (INSTACE == null) {
@@ -16,8 +17,20 @@ public class PldroidCdn {
         return INSTACE;
     }
 
-    public void addTask(MediaMeta mediaMeta) {
-
+    public static void init(PldroidPlayerListener listener) {
+        getInstance().setPlayerListener(listener);
     }
 
+    public void upload(MediaMeta mediaMeta) {
+        if (mPlayerListener == null) return;
+        mPlayerListener.upload(mediaMeta);
+    }
+
+    private void setPlayerListener(PldroidPlayerListener playerListener) {
+        mPlayerListener = playerListener;
+    }
+
+    public interface PldroidPlayerListener {
+        void upload(MediaMeta mediaMeta);
+    }
 }

@@ -47,7 +47,7 @@ public class MediaCollect {
         sMetaDataList.remove(mediaMeta);
         mediaMeta.setPlayerState(playerState);
         mediaMeta.playStop();
-        PldroidCdn.getInstance().addTask(mediaMeta);
+        PldroidCdn.getInstance().upload(mediaMeta);
     }
 
     private static class LogThread extends Thread {
