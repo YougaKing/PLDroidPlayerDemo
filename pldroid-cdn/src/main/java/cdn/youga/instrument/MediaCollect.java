@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * author: YougaKingWu@gmail.com
- * created on: 2018/04/26 12:13
- * description:
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
  */
 public class MediaCollect {
 

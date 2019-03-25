@@ -8,6 +8,11 @@ import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
+/**
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
+ */
 public class MediaPlayerInstrument {
 
 

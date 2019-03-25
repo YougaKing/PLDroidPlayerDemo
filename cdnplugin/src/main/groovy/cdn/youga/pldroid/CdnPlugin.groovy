@@ -5,6 +5,11 @@ import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/**
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
+ */
 class CdnPlugin implements Plugin<Project> {
 
     @Override

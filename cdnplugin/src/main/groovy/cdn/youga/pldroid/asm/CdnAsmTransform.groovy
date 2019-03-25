@@ -13,7 +13,11 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
-
+/**
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
+ */
 class CdnAsmTransform extends Transform {
 
     Project mProject

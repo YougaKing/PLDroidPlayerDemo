@@ -10,6 +10,11 @@ import org.gradle.api.Project
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
+/**
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
+ */
 class CdnJavassistTransform extends Transform {
 
     Project mProject
@@ -93,7 +98,13 @@ class CdnJavassistTransform extends Transform {
             mProject.logger.error "error:" + sw.toString()
         }
 
-        if (pldroidJarFile != null) PldroidInject.injectRebirthJar(pldroidJarFile, mProject)
+        try {
+            if (pldroidJarFile != null) PldroidInject.injectRebirthJar(pldroidJarFile, mProject)
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter()
+            e.printStackTrace(new PrintWriter(sw))
+            mProject.logger.error "error:" + sw.toString()
+        }
 
         ClassPool.getDefault().clearImportedPackages()
         mProject.logger.debug("cdnJavassistTransform cast :" + (System.currentTimeMillis() - startTime) / 1000 + " secs")

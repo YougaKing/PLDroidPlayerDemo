@@ -6,7 +6,11 @@ import android.util.Log;
 import com.pili.pldroid.player.PlayerState;
 
 import java.text.ParseException;
-
+/**
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
+ */
 public class MediaMeta {
 
     private final String TAG = "MediaMeta";

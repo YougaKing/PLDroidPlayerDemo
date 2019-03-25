@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * author: YougaKingWu@gmail.com
- * created on: 2018/04/26 17:03
- * description:
+ * @author: YougaKingWu@gmail.com
+ * @created on: 2018/04/26 12:13
+ * @description:
  */
 public class Meta {
 
