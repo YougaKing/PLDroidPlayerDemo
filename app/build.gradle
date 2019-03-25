@@ -60,5 +60,5 @@ dependencies {
     implementation 'io.grpc:grpc-stub:1.12.0'
     // CURRENT_GRPC_VERSION
     implementation 'javax.annotation:javax.annotation-api:1.2'
-    implementation files('libs/pldroid-cdn.jar')
+    implementation project(':pldroid-cdn')
 }

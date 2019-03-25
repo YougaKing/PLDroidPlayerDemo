@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import cdn.youga.instrument.CdnRpc;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -57,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        CdnRpc.init("192.168.0.106", 50051);
 
         TextView mVersionInfoTextView = findViewById(R.id.version_info);
         mVersionInfoTextView.setText("版本号: " + BuildConfig.VERSION_NAME + "\n");
