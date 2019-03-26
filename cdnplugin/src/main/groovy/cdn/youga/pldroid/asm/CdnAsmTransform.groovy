@@ -12,6 +12,7 @@ import com.android.build.gradle.internal.pipeline.TransformManager
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
+import cdn.youga.pldroid.Util
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -54,8 +55,9 @@ class CdnAsmTransform extends Transform {
 
         Collection<TransformInput> inputs = transformInvocation.inputs
         TransformOutputProvider outputProvider = transformInvocation.outputProvider
-
-
+        //删除之前的输出
+        if (outputProvider != null)
+            outputProvider.deleteAll()
 
         inputs.each { TransformInput input ->
 

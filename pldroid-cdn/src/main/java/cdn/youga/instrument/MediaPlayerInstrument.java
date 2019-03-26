@@ -78,7 +78,7 @@ public class MediaPlayerInstrument {
     public static void postEventFromNative(Object playerReference, int what, int ext1, int ext2, Object obj) {
         try {
             MediaPlayer mediaPlayer = (MediaPlayer) ((WeakReference) playerReference).get();
-//            Log.d(TAG, "what:" + Integer.toHexString(what) + "-->ext1:" + ext1 + "-->ext2:" + ext2 + "obj:" + obj);
+            Log.d(TAG, "what:" + Integer.toHexString(what) + "-->ext1:" + ext1 + "-->ext2:" + ext2 + "obj:" + obj);
             String url = mediaPlayer.r();
             PlayerState playerState = mediaPlayer.g();
             switch (what) {

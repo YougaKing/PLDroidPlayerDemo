@@ -1,14 +1,12 @@
 package cdn.youga.pldroid.javassist
 
+import cdn.youga.pldroid.Util
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 import javassist.ClassPool
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -65,6 +63,9 @@ class CdnJavassistTransform extends Transform {
 
         Collection<TransformInput> inputs = transformInvocation.inputs
         TransformOutputProvider outputProvider = transformInvocation.outputProvider
+        //删除之前的输出
+        if (outputProvider != null)
+            outputProvider.deleteAll()
 
         File pldroidJarFile
         try {
@@ -89,7 +90,7 @@ class CdnJavassistTransform extends Transform {
 
                     ClassPool.getDefault().appendClassPath(dst.absolutePath)
 
-                    if (pldroidJarFile == null && isPldroidJar(dst)) pldroidJarFile = dst
+                    if (pldroidJarFile == null && Util.isPldroidJar(dst)) pldroidJarFile = dst
                 }
             }
         } catch (Exception e) {
@@ -110,23 +111,4 @@ class CdnJavassistTransform extends Transform {
         mProject.logger.debug("cdnJavassistTransform cast :" + (System.currentTimeMillis() - startTime) / 1000 + " secs")
     }
 
-
-    static boolean isPldroidJar(File file) {
-        JarFile jarFile = new JarFile(file)
-        Enumeration<JarEntry> enumeration = jarFile.entries()
-
-        while (enumeration.hasMoreElements()) {
-            JarEntry jarEntry = enumeration.nextElement()
-            if (jarEntry.directory) {
-                continue
-            }
-            String entryName = jarEntry.getName()
-
-            if (entryName == "com/qiniu/qplayer/mediaEngine/MediaPlayer.class") {
-                return true
-            }
-        }
-        jarFile.close()
-        return false
-    }
 }
