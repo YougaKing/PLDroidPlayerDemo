@@ -1,6 +1,6 @@
 package cdn.youga.pldroid
 
-import cdn.youga.pldroid.javassist.PldroidInject
+import cdn.youga.pldroid.asm.CdnProcessor
 import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
@@ -76,6 +76,7 @@ class CdnPlugin extends Transform implements Plugin<Project> {
         Collection<TransformInput> inputs = transformInvocation.inputs
         TransformOutputProvider outputProvider = transformInvocation.outputProvider
 
+        File pldroidJarOriginFile
         File pldroidJarTempFile
         File pldroidJarDestFile
         try {
@@ -98,14 +99,13 @@ class CdnPlugin extends Transform implements Plugin<Project> {
                         if (jarName.endsWith(".jar")) {
                             jarName = jarName.substring(0, jarName.length() - 4)
                         }
+                        pldroidJarOriginFile = jarInput.file
                         pldroidJarTempFile = new File(dest.getParent() + File.separator + jarName + ".jar")
                         pldroidJarDestFile = dest
                         //避免上次的缓存被重复插入
                         if (pldroidJarTempFile.exists()) {
                             pldroidJarTempFile.delete()
                         }
-                        FileUtils.copyFile(jarInput.file, pldroidJarTempFile)
-                        ClassPool.getDefault().appendClassPath(pldroidJarTempFile.absolutePath)
                     } else {
                         FileUtils.copyFile(jarInput.file, dest)
                         ClassPool.getDefault().appendClassPath(dest.absolutePath)
@@ -113,8 +113,10 @@ class CdnPlugin extends Transform implements Plugin<Project> {
                 }
             }
 
-            if (pldroidJarTempFile != null && pldroidJarDestFile != null) {
-                PldroidInject.injectRebirthJar(pldroidJarTempFile, mProject)
+            if (pldroidJarTempFile != null && pldroidJarDestFile != null && pldroidJarOriginFile != null) {
+//                PldroidInject.injectRebirthJar(pldroidJarOriginFile, pldroidJarTempFile, mProject)
+                CdnProcessor.processJar(pldroidJarOriginFile, pldroidJarTempFile, mProject)
+
                 FileUtils.copyFile(pldroidJarTempFile, pldroidJarDestFile)
                 pldroidJarTempFile.delete()
             }

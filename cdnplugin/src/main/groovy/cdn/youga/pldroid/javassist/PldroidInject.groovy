@@ -1,16 +1,10 @@
 package cdn.youga.pldroid.javassist
 
+import com.android.utils.FileUtils
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
-
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
-import java.util.jar.JarOutputStream
-import java.util.zip.ZipEntry
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -20,11 +14,14 @@ import java.util.zip.ZipEntry
 class PldroidInject {
 
 
-    static void injectRebirthJar(File pldroidJarFile, Project project) {
+    static void injectRebirthJar(File originFile, File tempFile, Project project) {
+        FileUtils.copyFile(originFile, tempFile)
+        ClassPool.getDefault().appendClassPath(tempFile.absolutePath)
+
         // jar包解压后的保存路径
-        String jarZipDir = pldroidJarFile.getParent() + "/" + pldroidJarFile.getName().replace('.jar', '')
+        String jarZipDir = tempFile.getParent() + "/" + tempFile.getName().replace('.jar', '')
         // 解压jar包, 返回jar包中所有class的完整类名的集合（带.class后缀）
-        JarZipUtil.unzipJar(pldroidJarFile.absolutePath, jarZipDir)
+        JarZipUtil.unzipJar(tempFile.absolutePath, jarZipDir)
 
         // 注入代码
         CtClass ctClass = injectClass(project)
@@ -33,48 +30,10 @@ class PldroidInject {
         ctClass.defrost()
 
         // 重新打包jar
-        JarZipUtil.zipJar(pldroidJarFile, new File(jarZipDir))
+        JarZipUtil.zipJar(tempFile, new File(jarZipDir))
         // 删除目录
 //        FileUtils.deleteDirectory(new File(jarZipDir))
     }
-
-    static File injectReviveJar(File pldroidJarFile, Project project) {
-        File optJar = new File(pldroidJarFile.getParent(), pldroidJarFile.name + ".opt")
-        if (optJar.exists())
-            optJar.delete()
-        JarFile jarFile = new JarFile(pldroidJarFile)
-
-        Enumeration<JarEntry> enumeration = jarFile.entries()
-        JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(optJar))
-
-
-        while (enumeration.hasMoreElements()) {
-            JarEntry jarEntry = enumeration.nextElement()
-            String entryName = jarEntry.getName()
-            ZipEntry zipEntry = new ZipEntry(entryName)
-
-            InputStream inputStream = jarFile.getInputStream(jarEntry)
-            jarOutputStream.putNextEntry(zipEntry)
-
-            if (entryName == "com/qiniu/qplayer/mediaEngine/MediaPlayer.class") {
-                // 注入代码
-                CtClass ctClass = injectClass(project)
-                ctClass.detach()
-
-                jarOutputStream.write(ctClass.toBytecode())
-            } else {
-                jarOutputStream.write(IOUtils.toByteArray(inputStream))
-            }
-            jarOutputStream.closeEntry()
-        }
-        jarOutputStream.close()
-        jarFile.close()
-
-        if (pldroidJarFile.exists()) pldroidJarFile.delete()
-
-        optJar.renameTo(pldroidJarFile)
-    }
-
 
     static CtClass injectClass(Project project) {
         ClassPool pool = ClassPool.getDefault()
