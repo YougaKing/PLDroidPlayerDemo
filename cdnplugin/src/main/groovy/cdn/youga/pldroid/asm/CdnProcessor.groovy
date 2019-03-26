@@ -1,5 +1,6 @@
 package cdn.youga.pldroid.asm
 
+import cdn.youga.pldroid.Util
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 import org.objectweb.asm.ClassReader
@@ -32,7 +33,7 @@ class CdnProcessor {
             InputStream inputStream = jarFile.getInputStream(jarEntry)
 
             //插桩class
-            if (isMediaPlayerClass(entryName)) {
+            if (Util.isMediaPlayerClass(entryName)) {
                 //class文件处理
                 project.logger.error(entryName)
 
@@ -52,11 +53,5 @@ class CdnProcessor {
         //结束
         jarOutputStream.close()
         jarFile.close()
-    }
-
-
-    static boolean isMediaPlayerClass(String name) {
-        //只处理需要的class文件
-        return "com/qiniu/qplayer/mediaEngine/MediaPlayer.class" == name
     }
 }

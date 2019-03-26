@@ -1,6 +1,5 @@
 package cdn.youga.pldroid
 
-import cdn.youga.pldroid.asm.CdnProcessor
 import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
@@ -9,6 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import cdn.youga.pldroid.javassist.PldroidInject
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -114,8 +114,8 @@ class CdnPlugin extends Transform implements Plugin<Project> {
             }
 
             if (pldroidJarTempFile != null && pldroidJarDestFile != null && pldroidJarOriginFile != null) {
-//                PldroidInject.injectRebirthJar(pldroidJarOriginFile, pldroidJarTempFile, mProject)
-                CdnProcessor.processJar(pldroidJarOriginFile, pldroidJarTempFile, mProject)
+                PldroidInject.processJar(pldroidJarOriginFile, pldroidJarTempFile, mProject)
+//                CdnProcessor.processJar(pldroidJarOriginFile, pldroidJarTempFile, mProject)
 
                 FileUtils.copyFile(pldroidJarTempFile, pldroidJarDestFile)
                 pldroidJarTempFile.delete()

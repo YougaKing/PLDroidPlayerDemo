@@ -1,10 +1,17 @@
 package cdn.youga.pldroid.javassist
 
+import cdn.youga.pldroid.Util
 import com.android.utils.FileUtils
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
+
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+import java.util.zip.ZipEntry
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -12,7 +19,6 @@ import org.gradle.api.Project
  * @description:
  */
 class PldroidInject {
-
 
     static void injectRebirthJar(File originFile, File tempFile, Project project) {
         FileUtils.copyFile(originFile, tempFile)
@@ -24,7 +30,8 @@ class PldroidInject {
         JarZipUtil.unzipJar(tempFile.absolutePath, jarZipDir)
 
         // 注入代码
-        CtClass ctClass = injectClass(project)
+        CtClass mediaPlayer = ClassPool.getDefault().get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
+        CtClass ctClass = injectMediaPlayerClass(mediaPlayer, project)
         ctClass.writeFile(jarZipDir)
         ctClass.detach()
         ctClass.defrost()
@@ -35,10 +42,43 @@ class PldroidInject {
 //        FileUtils.deleteDirectory(new File(jarZipDir))
     }
 
-    static CtClass injectClass(Project project) {
-        ClassPool pool = ClassPool.getDefault()
+    static void processJar(File originFile, File tempFile, Project project) {
+        JarFile jarFile = new JarFile(originFile)
+        Enumeration enumeration = jarFile.entries()
+        JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(tempFile))
+        //用于保存
+        while (enumeration.hasMoreElements()) {
+            JarEntry jarEntry = (JarEntry) enumeration.nextElement()
+            String entryName = jarEntry.getName()
+            ZipEntry zipEntry = new ZipEntry(entryName)
+            InputStream inputStream = jarFile.getInputStream(jarEntry)
 
-        CtClass mediaPlayer = pool.get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
+            //插桩class
+            if (Util.isMediaPlayerClass(entryName)) {
+                //class文件处理
+                project.logger.error(entryName)
+
+                jarOutputStream.putNextEntry(zipEntry)
+
+                ClassPool pool = ClassPool.getDefault()
+                CtClass ctClass = pool.makeClass(inputStream, false)
+                ctClass = injectMediaPlayerClass(ctClass, project)
+
+                jarOutputStream.write(ctClass.toBytecode())
+            } else {
+                jarOutputStream.putNextEntry(zipEntry)
+                jarOutputStream.write(IOUtils.toByteArray(inputStream))
+            }
+            jarOutputStream.closeEntry()
+        }
+        //结束
+        jarOutputStream.close()
+        jarFile.close()
+    }
+
+
+    static CtClass injectMediaPlayerClass(CtClass mediaPlayer, Project project) {
+        ClassPool pool = ClassPool.getDefault()
         if (mediaPlayer.isFrozen()) mediaPlayer.defrost()
         mediaPlayer.stopPruning(true)
 

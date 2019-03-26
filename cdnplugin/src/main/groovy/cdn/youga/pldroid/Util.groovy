@@ -23,4 +23,9 @@ class Util {
         jarFile.close()
         return false
     }
+
+    static boolean isMediaPlayerClass(String name) {
+        //只处理需要的class文件
+        return "com/qiniu/qplayer/mediaEngine/MediaPlayer.class" == name
+    }
 }
