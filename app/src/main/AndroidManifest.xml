@@ -11,9 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!--<uses-permission-->
-        <!--android:name="android.permission.READ_LOGS"-->
-        <!--tools:ignore="ProtectedPermissions" />-->
+    <uses-permission
+        android:name="android.permission.READ_LOGS"
+        tools:ignore="ProtectedPermissions" />
 
     <supports-screens
         android:anyDensity="true"

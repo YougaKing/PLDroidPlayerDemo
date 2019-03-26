@@ -33,7 +33,7 @@ public class MediaPlayerInstrument {
      */
     public static void setDataSource(String url, Map<String, String> header, MediaPlayer mediaPlayer) {
         Log.e(TAG, "setDataSource():" + url);
-        MediaCollect.setDataSource(url, mediaPlayer.g());
+        MediaCollect.getInstance().setDataSource(url, mediaPlayer.g());
     }
 
 
@@ -43,7 +43,7 @@ public class MediaPlayerInstrument {
     public static void prepareAsync(MediaPlayer mediaPlayer) {
         Log.e(TAG, "prepareAsync()");
         String url = mediaPlayer.r();
-        MediaCollect.prepareAsync(url, mediaPlayer.g());
+        MediaCollect.getInstance().prepareAsync(url, mediaPlayer.g());
     }
 
     /**
@@ -97,7 +97,7 @@ public class MediaPlayerInstrument {
                     Log.e(TAG, "QC_MSG_PLAY_OPEN_DONE");
                     break;
                 case QC_MSG_PLAY_STOP://停止
-                    MediaCollect.playStop(url, playerState);
+                    MediaCollect.getInstance().playStop(url, playerState);
                     break;
                 case QC_MSG_HTTP_CONNECT_START:
                     Log.e(TAG, "QC_MSG_HTTP_CONNECT_START");
