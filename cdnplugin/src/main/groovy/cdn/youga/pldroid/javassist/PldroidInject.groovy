@@ -30,10 +30,10 @@ class PldroidInject {
         CtClass ctClass = injectClass(project)
         ctClass.writeFile(jarZipDir)
         ctClass.detach()
+        ctClass.defrost()
 
         // 重新打包jar
         JarZipUtil.zipJar(pldroidJarFile, new File(jarZipDir))
-
         // 删除目录
 //        FileUtils.deleteDirectory(new File(jarZipDir))
     }
@@ -114,11 +114,9 @@ class PldroidInject {
         project.logger.error("postEventFromNative:" + postEventFromNative)
         postEventFromNative.insertBefore("cdn.youga.instrument.MediaPlayerInstrument.postEventFromNative(\$1, \$2, \$3,\$4, \$5);")
 
-
         CtClass mediaPlayerInstrument = pool.get("cdn.youga.instrument.MediaPlayerInstrument")
         mediaPlayerInstrument.detach()
         mediaPlayerInstrument.defrost()
-
         return mediaPlayer
     }
 }

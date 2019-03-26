@@ -12,7 +12,10 @@ import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_CONNECT_FAILED;
 import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_CONNECT_START;
 import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_CONNECT_SUCESS;
 import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_DNS_START;
+import static cdn.youga.instrument.EventCodes.QC_MSG_PLAY_OPEN_DONE;
 import static cdn.youga.instrument.EventCodes.QC_MSG_PLAY_STOP;
+import static cdn.youga.instrument.EventCodes.QC_MSG_PLAY_UNKNOW;
+import static cdn.youga.instrument.EventCodes.QC_MSG_SNKV_NEW_FORMAT;
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -78,10 +81,21 @@ public class MediaPlayerInstrument {
     public static void postEventFromNative(Object playerReference, int what, int ext1, int ext2, Object obj) {
         try {
             MediaPlayer mediaPlayer = (MediaPlayer) ((WeakReference) playerReference).get();
-            Log.d(TAG, "what:" + Integer.toHexString(what) + "-->ext1:" + ext1 + "-->ext2:" + ext2 + "obj:" + obj);
+//            Log.d(TAG, "what:" + Integer.toHexString(what) + "-->ext1:" + ext1 + "-->ext2:" + ext2 + "obj:" + obj);
             String url = mediaPlayer.r();
             PlayerState playerState = mediaPlayer.g();
             switch (what) {
+                case QC_MSG_PLAY_UNKNOW:
+                    Log.e(TAG, "QC_MSG_PLAY_UNKNOW");
+                    break;
+                case QC_MSG_SNKV_NEW_FORMAT://onVideoSizeChanged
+                    Log.e(TAG, "QC_MSG_SNKV_NEW_FORMAT");
+                    break;
+                case QC_MSG_PLAY_OPEN_DONE://onPrepared
+//                    var1 = (int) (System.currentTimeMillis() - mStartPrepare);
+//                    Log.e(TAG, "准备完成时间:" + var1);
+                    Log.e(TAG, "QC_MSG_PLAY_OPEN_DONE");
+                    break;
                 case QC_MSG_PLAY_STOP://停止
                     MediaCollect.playStop(url, playerState);
                     break;
@@ -96,9 +110,6 @@ public class MediaPlayerInstrument {
                     break;
                 case QC_MSG_HTTP_DNS_START:
                     Log.e(TAG, "QC_MSG_HTTP_DNS_START");
-                    break;
-                case 369098762:
-
                     break;
                 case 285212752:
                 case 285212753:
@@ -164,9 +175,6 @@ public class MediaPlayerInstrument {
 //                    var5.a(var5, 702, 0);
                     Log.e(TAG, "停止缓冲");
                     break;
-                case 354418691://onVideoSizeChanged
-
-                    break;
                 case 354418692://onInfo MEDIA_INFO_VIDEO_FRAME_RENDERING 视频帧的时间戳
 //                    var5.a(var5, 10004, ext1);
 //                    if (var5.i == PlayerState.RECONNECTING) {
@@ -175,10 +183,6 @@ public class MediaPlayerInstrument {
                     break;
                 case 354418693://onInfo MEDIA_INFO_VIDEO_ROTATION_CHANGED
 
-                    break;
-                case 369098753://onPrepared
-//                    var1 = (int) (System.currentTimeMillis() - mStartPrepare);
-//                    Log.e(TAG, "准备完成时间:" + var1);
                     break;
                 case 369098754://onError ERROR_CODE_OPEN_FAILED
 //                    if (var5.p <= 0 || ext1 != -2147483632) {
