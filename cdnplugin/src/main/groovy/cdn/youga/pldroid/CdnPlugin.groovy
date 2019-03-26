@@ -35,7 +35,7 @@ class CdnPlugin extends Transform implements Plugin<Project> {
 
     @Override
     String getName() {
-        return "CdnPluginTransform"
+        return "cdnPluginTransform"
     }
 
     //需要处理的数据类型，有两种枚举类型

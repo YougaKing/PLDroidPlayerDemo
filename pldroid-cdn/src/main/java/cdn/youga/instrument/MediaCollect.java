@@ -5,8 +5,6 @@ import com.pili.pldroid.player.PlayerState;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -16,7 +14,7 @@ import java.util.List;
 public class MediaCollect {
 
     private static MediaCollect INSTACE;
-    private List<MediaMeta> mMetaDataList = new ArrayList<>();
+    private MediaMeta mMediaMeta;
     private LogThread mLogThread;
 
     public static MediaCollect getInstance() {
@@ -27,48 +25,34 @@ public class MediaCollect {
     }
 
     public void setDataSource(String url, PlayerState playerState) {
-        MediaMeta meta = findMetaData(url);
-        if (meta == null) {
-            meta = new MediaMeta(url);
-            mMetaDataList.add(meta);
+        if (mMediaMeta == null) {
+            mMediaMeta = new MediaMeta(url);
         }
-        meta.setPlayerState(playerState);
-    }
-
-    private MediaMeta findMetaData(String url) {
-        for (MediaMeta meta : mMetaDataList) {
-            if (url.equals(meta.getUrl()) && !meta.isDestroyed()) {
-                return meta;
-            }
-        }
-        return null;
+        mMediaMeta.setPlayerState(playerState);
     }
 
     public void prepareAsync(String url, PlayerState playerState) {
-        MediaMeta meta = findMetaData(url);
-        if (meta == null) setDataSource(url, playerState);
+        if (mMediaMeta == null) return;
         if (mLogThread == null) {
-            mLogThread = new LogThread(meta);
+            mLogThread = new LogThread(mMediaMeta);
             mLogThread.start();
         }
     }
 
     public void playStop(String url, PlayerState playerState) {
-        MediaMeta mediaMeta = findMetaData(url);
-        if (mediaMeta == null) return;
-        mMetaDataList.remove(mediaMeta);
-        mediaMeta.setPlayerState(playerState);
-        mediaMeta.playStop();
-        PldroidCdn.getInstance().upload(mediaMeta);
+        if (mMediaMeta == null) return;
+        mMediaMeta.setPlayerState(playerState);
+        mMediaMeta.playStop();
+        PldroidCdn.getInstance().upload(mMediaMeta);
         if (mLogThread != null) {
             mLogThread.finish();
             mLogThread = null;
+            mMediaMeta = null;
         }
     }
 
     private static class LogThread extends Thread {
 
-        private static final String TAG = "LogThread";
         private MediaMeta mMediaMeta;
         private boolean mFinished;
 
