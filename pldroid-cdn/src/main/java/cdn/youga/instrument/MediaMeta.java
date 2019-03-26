@@ -6,6 +6,7 @@ import android.util.Log;
 import com.pili.pldroid.player.PlayerState;
 
 import java.text.ParseException;
+
 /**
  * @author: YougaKingWu@gmail.com
  * @created on: 2018/04/26 12:13
@@ -44,6 +45,7 @@ public class MediaMeta {
     }
 
     public void playStop() {
+        if (mMeta == null) return;
         mMeta.clearing();
         Log.e(TAG, "url:" + mUrl + "\nip:" + mMeta.ip + "\nlength:" + mMeta.length);
         Log.e(TAG, "dnsTime:" + mMeta.dnsTime);

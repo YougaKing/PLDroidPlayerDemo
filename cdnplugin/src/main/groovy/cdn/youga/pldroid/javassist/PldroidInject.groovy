@@ -11,6 +11,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
+
 /**
  * @author: YougaKingWu@gmail.com
  * @created on: 2018/04/26 12:13
@@ -79,8 +80,8 @@ class PldroidInject {
         ClassPool pool = ClassPool.getDefault()
 
         CtClass mediaPlayer = pool.get("com.qiniu.qplayer.mediaEngine.MediaPlayer")
-
         if (mediaPlayer.isFrozen()) mediaPlayer.defrost()
+        mediaPlayer.stopPruning(true)
 
         CtClass[] params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
         CtMethod setDataSource = mediaPlayer.getDeclaredMethod("a", params)

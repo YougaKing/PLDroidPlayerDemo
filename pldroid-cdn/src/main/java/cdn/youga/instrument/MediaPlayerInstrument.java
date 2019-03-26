@@ -8,6 +8,12 @@ import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
+import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_CONNECT_FAILED;
+import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_CONNECT_START;
+import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_CONNECT_SUCESS;
+import static cdn.youga.instrument.EventCodes.QC_MSG_HTTP_DNS_START;
+import static cdn.youga.instrument.EventCodes.QC_MSG_PLAY_STOP;
+
 /**
  * @author: YougaKingWu@gmail.com
  * @created on: 2018/04/26 12:13
@@ -76,13 +82,24 @@ public class MediaPlayerInstrument {
             String url = mediaPlayer.r();
             PlayerState playerState = mediaPlayer.g();
             switch (what) {
-                case EventCodes.QC_MSG_PLAY_STOP://停止
+                case QC_MSG_PLAY_STOP://停止
                     MediaCollect.playStop(url, playerState);
+                    break;
+                case QC_MSG_HTTP_CONNECT_START:
+                    Log.e(TAG, "QC_MSG_HTTP_CONNECT_START");
+                    break;
+                case QC_MSG_HTTP_CONNECT_FAILED:
+                    Log.e(TAG, "QC_MSG_HTTP_CONNECT_FAILED");
+                    break;
+                case QC_MSG_HTTP_CONNECT_SUCESS:
+                    Log.e(TAG, "QC_MSG_HTTP_CONNECT_SUCESS");
+                    break;
+                case QC_MSG_HTTP_DNS_START:
+                    Log.e(TAG, "QC_MSG_HTTP_DNS_START");
                     break;
                 case 369098762:
 
                     break;
-                case 285212674:
                 case 285212752:
                 case 285212753:
                 case 285278210:
@@ -90,7 +107,6 @@ public class MediaPlayerInstrument {
                 case 285278216://onError ERROR_CODE_IO_ERROR
 //                    var5.c(-3);
                     break;
-                case 285212675:
                 case 285212754:
                 case 285278211:
                 case 285278217://onInfo MEDIA_INFO_CONNECTED 连接成功

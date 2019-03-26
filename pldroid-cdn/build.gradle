@@ -38,7 +38,7 @@ dependencies {
 
 
 def _BASENAME = "pldroid-cdn";
-def _VERSION = "-1.1.0";
+def _VERSION = "-1.0.0";
 def _DestinationPath = "build"; //生成jar包的位置
 def zipFile = file('build/intermediates/packaged-classes/release/classes.jar'); //待打包文件位置
 
