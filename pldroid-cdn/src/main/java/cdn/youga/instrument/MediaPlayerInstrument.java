@@ -2,6 +2,7 @@ package cdn.youga.instrument;
 
 import android.util.Log;
 
+import com.pili.pldroid.player.AVOptions;
 import com.pili.pldroid.player.PlayerState;
 import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 
@@ -27,6 +28,15 @@ public class MediaPlayerInstrument {
 
     private static final String TAG = "MediaPlayerInstrument";
 
+    /**
+     * com.youga.pldroid.MediaPlayerInstrument.setAVOptions(\$1);
+     */
+    public static void setAVOptions(AVOptions avOptions) {
+        Log.e(TAG, "setAVOptions():" + avOptions);
+        if (avOptions != null) {
+            avOptions.setInteger(AVOptions.KEY_LOG_LEVEL, 0);
+        }
+    }
 
     /**
      * com.youga.pldroid.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);

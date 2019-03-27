@@ -43,6 +43,7 @@ class PldroidInject {
     }
 
     static void processJar(File originFile, File tempFile, Project project) {
+        ClassPool.getDefault().appendClassPath(originFile.absolutePath)
         JarFile jarFile = new JarFile(originFile)
         Enumeration enumeration = jarFile.entries()
         JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(tempFile))
@@ -83,7 +84,12 @@ class PldroidInject {
         if (mediaPlayer.isFrozen()) mediaPlayer.defrost()
         mediaPlayer.stopPruning(true)
 
-        CtClass[] params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
+        CtClass[] params = [pool.get("com.pili.pldroid.player.AVOptions")] as CtClass[]
+        CtMethod setAVOptions = mediaPlayer.getDeclaredMethod("a", params)
+        project.logger.error("setAVOptions:" + setAVOptions)
+        setAVOptions.insertBefore("cdn.youga.instrument.MediaPlayerInstrument.setAVOptions(\$1);")
+
+        params = [pool.get(String.class.getName()), pool.get(Map.class.getName())] as CtClass[]
         CtMethod setDataSource = mediaPlayer.getDeclaredMethod("a", params)
         project.logger.error("setDataSource:" + setDataSource)
         setDataSource.insertAfter("cdn.youga.instrument.MediaPlayerInstrument.setDataSource(\$1, \$2, \$0);")
