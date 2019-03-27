@@ -74,6 +74,7 @@ class PldroidInject {
         //结束
         jarOutputStream.close()
         jarFile.close()
+        ClassPool.getDefault().clearImportedPackages()
     }
 
 

@@ -71,7 +71,7 @@ public class MediaCollect {
             String[] find = new String[]{"logcat", "|find", "@@@QCLOG"};
 //            String[] clear = new String[]{"logcat", "-c"};
 
-            Process pro = null;
+            Process pro;
             BufferedReader bufferedReader = null;
             //筛选需要的字串
             try {
@@ -80,6 +80,7 @@ public class MediaCollect {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     if (mFinished) {
+                        closeBufferedReader(bufferedReader);
                         return;
                     }
                     if (line.contains(filter)) {
@@ -94,11 +95,15 @@ public class MediaCollect {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                try {
-                    if (bufferedReader != null) bufferedReader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                closeBufferedReader(bufferedReader);
+            }
+        }
+
+        void closeBufferedReader(BufferedReader bufferedReader) {
+            try {
+                if (bufferedReader != null) bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
