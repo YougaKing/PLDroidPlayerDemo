@@ -1,10 +1,17 @@
 package cdn.youga.instrument;
 
+import android.text.TextUtils;
+
 import com.pili.pldroid.player.PlayerState;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import static cdn.youga.instrument.PldroidCdn.ALL;
+import static cdn.youga.instrument.PldroidCdn.TCP;
 
 /**
  * @author: YougaKingWu@gmail.com
@@ -13,9 +20,10 @@ import java.io.InputStreamReader;
  */
 public class MediaCollect {
 
+    private static final Executor SINGLE_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
     private static MediaCollect INSTACE;
     private MediaMeta mMediaMeta;
-    private LogThread mLogThread;
+    private LogRunnable mLogRunnable;
 
     public static MediaCollect getInstance() {
         if (INSTACE == null) {
@@ -25,6 +33,7 @@ public class MediaCollect {
     }
 
     public void setDataSource(String url, PlayerState playerState) {
+        if (!isSupportCollectType(url)) return;
         if (mMediaMeta == null) {
             mMediaMeta = new MediaMeta(url);
         }
@@ -32,31 +41,44 @@ public class MediaCollect {
     }
 
     public void prepareAsync(String url, PlayerState playerState) {
+        if (!isSupportCollectType(url)) return;
         if (mMediaMeta == null) return;
-        if (mLogThread == null) {
-            mLogThread = new LogThread(mMediaMeta);
-            mLogThread.start();
+        if (mLogRunnable == null) {
+            mLogRunnable = new LogRunnable(mMediaMeta);
+            SINGLE_THREAD_EXECUTOR.execute(mLogRunnable);
         }
     }
 
     public void playStop(String url, PlayerState playerState) {
+        if (!isSupportCollectType(url)) return;
         if (mMediaMeta == null) return;
         mMediaMeta.setPlayerState(playerState);
         mMediaMeta.playStop();
         PldroidCdn.getInstance().upload(mMediaMeta);
-        if (mLogThread != null) {
-            mLogThread.finish();
-            mLogThread = null;
+        if (mLogRunnable != null) {
+            mLogRunnable.finish();
+            mLogRunnable = null;
             mMediaMeta = null;
         }
     }
 
-    private static class LogThread extends Thread {
+    private boolean isSupportCollectType(String url) {
+        if (TextUtils.isEmpty(url)) return false;
+        if (PldroidCdn.getInstance().getCollectType() == ALL) {
+            return true;
+        } else if (PldroidCdn.getInstance().getCollectType() == TCP) {
+            return url.contains("http://") || url.contains("https://");
+        } else {
+            return false;
+        }
+    }
+
+    private static class LogRunnable implements Runnable {
 
         private MediaMeta mMediaMeta;
         private boolean mFinished;
 
-        LogThread(MediaMeta mediaMeta) {
+        LogRunnable(MediaMeta mediaMeta) {
             mMediaMeta = mediaMeta;
         }
 
@@ -66,7 +88,6 @@ public class MediaCollect {
 
         @Override
         public void run() {
-            super.run();
             String filter = "QCMSG";
             String[] find = new String[]{"logcat", "|find", "@@@QCLOG"};
 //            String[] clear = new String[]{"logcat", "-c"};
