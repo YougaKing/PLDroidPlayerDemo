@@ -1,5 +1,8 @@
 package cdn.youga.instrument;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * @author: YougaKingWu@gmail.com
  * @created on: 2018/04/26 12:13
@@ -7,23 +10,37 @@ package cdn.youga.instrument;
  */
 public class PldroidCdn {
 
+    static final int ALL = 0, TCP = 1;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @interface CollectType {
+    }
+
+    @CollectType
+    private int mCollectType = ALL;
     private static PldroidCdn INSTACE;
     private PldroidPlayerListener mPlayerListener;
 
-    public static PldroidCdn getInstance() {
+    static PldroidCdn getInstance() {
         if (INSTACE == null) {
             INSTACE = new PldroidCdn();
         }
         return INSTACE;
     }
 
-    public static void init(PldroidPlayerListener listener) {
-        getInstance().setPlayerListener(listener);
+    public static void init(@CollectType int type, PldroidPlayerListener listener) {
+        PldroidCdn pldroidCdn = getInstance();
+        pldroidCdn.mCollectType = type;
+        pldroidCdn.setPlayerListener(listener);
     }
 
-    public void upload(MediaMeta mediaMeta) {
+    void upload(MediaMeta mediaMeta) {
         if (mPlayerListener == null) return;
         mPlayerListener.upload(mediaMeta);
+    }
+
+    int getCollectType() {
+        return mCollectType;
     }
 
     private void setPlayerListener(PldroidPlayerListener playerListener) {
@@ -33,4 +50,6 @@ public class PldroidCdn {
     public interface PldroidPlayerListener {
         void upload(MediaMeta mediaMeta);
     }
+
+
 }
