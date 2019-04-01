@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class PldroidCdn {
 
-    static final int ALL = 0, TCP = 1;
+    public static final int ALL = 0, TCP = 1;
 
     @Retention(RetentionPolicy.SOURCE)
     @interface CollectType {
