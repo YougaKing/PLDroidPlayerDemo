@@ -27,7 +27,7 @@ public class PldroidApplication extends Application {
 //                .withInteractionTracing(true)
 //                .start(this);
 
-        PldroidCdn.init(new PldroidPlayerListener() {
+        PldroidCdn.init(PldroidCdn.ALL, new PldroidPlayerListener() {
             @Override
             public void upload(MediaMeta mediaMeta) {
                 Logger.d(mediaMeta);

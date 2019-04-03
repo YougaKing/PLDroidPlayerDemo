@@ -10,6 +10,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class PldroidCdn {
 
+    public static final String SUPPORT_COLLECT_MEDIA_META = "support_collect_media_meta";
     public static final int ALL = 0, TCP = 1;
 
     @Retention(RetentionPolicy.SOURCE)
@@ -50,6 +51,4 @@ public class PldroidCdn {
     public interface PldroidPlayerListener {
         void upload(MediaMeta mediaMeta);
     }
-
-
 }

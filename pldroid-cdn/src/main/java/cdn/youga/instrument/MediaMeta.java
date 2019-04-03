@@ -59,6 +59,10 @@ public class MediaMeta {
         Log.e(TAG, "downloadTime:" + mMeta.downloadTime);
     }
 
+    public PlayerState getPlayerState() {
+        return mPlayerState;
+    }
+
     public Meta getMeta() {
         return mMeta == null ? new Meta() : mMeta;
     }

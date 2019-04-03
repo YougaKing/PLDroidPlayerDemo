@@ -25,6 +25,8 @@ import com.pili.pldroid.playerdemo.widget.MediaController.OnClickSpeedAdjustList
 import java.io.InputStream;
 import java.util.Arrays;
 
+import cdn.youga.instrument.PldroidCdn;
+
 /**
  * This is a demo activity of PLVideoView
  */
@@ -88,6 +90,7 @@ public class PLVideoViewActivity extends VideoPlayerBaseActivity {
         if (acallback) {
             options.setInteger(AVOptions.KEY_AUDIO_DATA_CALLBACK, 1);
         }
+        options.setInteger(PldroidCdn.SUPPORT_COLLECT_MEDIA_META, 1);
         mVideoView.setAVOptions(options);
 
         // Set some listeners

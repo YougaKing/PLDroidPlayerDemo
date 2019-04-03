@@ -2,15 +2,19 @@ package cdn.youga.instrument;
 
 import android.text.TextUtils;
 
+import com.pili.pldroid.player.AVOptions;
 import com.pili.pldroid.player.PlayerState;
+import com.qiniu.qplayer.mediaEngine.MediaPlayer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static cdn.youga.instrument.PldroidCdn.ALL;
+import static cdn.youga.instrument.PldroidCdn.SUPPORT_COLLECT_MEDIA_META;
 import static cdn.youga.instrument.PldroidCdn.TCP;
 
 /**
@@ -18,21 +22,29 @@ import static cdn.youga.instrument.PldroidCdn.TCP;
  * @created on: 2018/04/26 12:13
  * @description:
  */
-public class MediaCollect {
+class MediaCollect {
 
     private static final Executor SINGLE_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
     private static MediaCollect INSTACE;
     private MediaMeta mMediaMeta;
     private LogRunnable mLogRunnable;
+    private boolean mSupportCollectMediaMeta;
 
-    public static MediaCollect getInstance() {
+    static MediaCollect getInstance() {
         if (INSTACE == null) {
             INSTACE = new MediaCollect();
         }
         return INSTACE;
     }
 
-    public void setDataSource(String url, PlayerState playerState) {
+    void setAVOptions(AVOptions avOptions) {
+        if (avOptions == null) return;
+        mSupportCollectMediaMeta = avOptions.getInteger(SUPPORT_COLLECT_MEDIA_META, 0) == 1;
+        if (!mSupportCollectMediaMeta) return;
+        avOptions.setInteger(AVOptions.KEY_LOG_LEVEL, 0);
+    }
+
+    void setDataSource(String url, Map<String, String> header, PlayerState playerState) {
         if (!isSupportCollectType(url)) return;
         if (mMediaMeta == null) {
             mMediaMeta = new MediaMeta(url);
@@ -40,7 +52,9 @@ public class MediaCollect {
         mMediaMeta.setPlayerState(playerState);
     }
 
-    public void prepareAsync(String url, PlayerState playerState) {
+    void prepareAsync(MediaPlayer mediaPlayer) {
+        if (mediaPlayer == null) return;
+        String url = mediaPlayer.r();
         if (!isSupportCollectType(url)) return;
         if (mMediaMeta == null) return;
         if (mLogRunnable == null) {
@@ -49,7 +63,7 @@ public class MediaCollect {
         }
     }
 
-    public void playStop(String url, PlayerState playerState) {
+    void playStop(String url, PlayerState playerState) {
         if (!isSupportCollectType(url)) return;
         if (mMediaMeta == null) return;
         mMediaMeta.setPlayerState(playerState);
@@ -63,6 +77,7 @@ public class MediaCollect {
     }
 
     private boolean isSupportCollectType(String url) {
+        if (!mSupportCollectMediaMeta) return false;
         if (TextUtils.isEmpty(url)) return false;
         if (PldroidCdn.getInstance().getCollectType() == ALL) {
             return true;
@@ -100,7 +115,7 @@ public class MediaCollect {
                 bufferedReader = new BufferedReader(new InputStreamReader(pro.getInputStream()));
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
-                    if (mFinished) {
+                    if (mFinished || mMediaMeta == null) {
                         closeBufferedReader(bufferedReader);
                         return;
                     }

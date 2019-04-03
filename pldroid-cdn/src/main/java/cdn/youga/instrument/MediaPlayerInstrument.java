@@ -33,9 +33,7 @@ public class MediaPlayerInstrument {
      */
     public static void setAVOptions(AVOptions avOptions) {
         Log.e(TAG, "setAVOptions():" + avOptions);
-        if (avOptions != null) {
-            avOptions.setInteger(AVOptions.KEY_LOG_LEVEL, 0);
-        }
+        MediaCollect.getInstance().setAVOptions(avOptions);
     }
 
     /**
@@ -43,17 +41,15 @@ public class MediaPlayerInstrument {
      */
     public static void setDataSource(String url, Map<String, String> header, MediaPlayer mediaPlayer) {
         Log.e(TAG, "setDataSource():" + url);
-        MediaCollect.getInstance().setDataSource(url, mediaPlayer.g());
+        MediaCollect.getInstance().setDataSource(url, header, mediaPlayer.g());
     }
-
 
     /**
      * com.youga.pldroid.MediaPlayerInstrument.prepareAsync(\$0);
      */
     public static void prepareAsync(MediaPlayer mediaPlayer) {
         Log.e(TAG, "prepareAsync()");
-        String url = mediaPlayer.r();
-        MediaCollect.getInstance().prepareAsync(url, mediaPlayer.g());
+        MediaCollect.getInstance().prepareAsync(mediaPlayer);
     }
 
     /**
@@ -91,6 +87,7 @@ public class MediaPlayerInstrument {
     public static void postEventFromNative(Object playerReference, int what, int ext1, int ext2, Object obj) {
         try {
             MediaPlayer mediaPlayer = (MediaPlayer) ((WeakReference) playerReference).get();
+            if (mediaPlayer == null) return;
 //            Log.d(TAG, "what:" + Integer.toHexString(what) + "-->ext1:" + ext1 + "-->ext2:" + ext2 + "obj:" + obj);
             String url = mediaPlayer.r();
             PlayerState playerState = mediaPlayer.g();
